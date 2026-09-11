@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Milk Can Quality Dashboard | SIH 2026 - Team Unaligned</title>
+  <title>Smart Milk Can Quality Dashboard</title>
   
   <!-- Google Fonts & Tailwind CSS CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,7 +96,7 @@
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 pb-12">
 
-  <!-- TOP BRANDING & SIH HEADER -->
+  <!-- TOP HEADER -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       
@@ -106,18 +106,13 @@
           <i data-lucide="milk" class="w-6 h-6"></i>
         </div>
         <div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-300 tracking-wider uppercase">Team_Unaligned</span>
-            <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
-              <i data-lucide="award" class="w-3 h-3"></i> SMART INDIA HACKATHON 2026
-            </span>
-          </div>
-          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-display mt-0.5 flex items-center gap-2">
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-display flex items-center gap-2">
             SMART MILK CAN
             <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-green"></span> LIVE STATUS
             </span>
           </h1>
+          <p class="text-xs text-slate-500">Real-time Quality & Telemetry Dashboard</p>
         </div>
       </div>
 
@@ -154,8 +149,8 @@
           <span id="text-audio">Sound: ON</span>
         </button>
         <button onclick="scrollToSection('esp-control-hub')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">
-          <i data-lucide="cpu" class="w-4 h-4"></i>
-          ESP32 Live Controller & Code
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          ESP32 Live Controller Hub
         </button>
       </div>
     </div>
@@ -201,12 +196,12 @@
 
           <!-- Progress Bar -->
           <div class="mt-4 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <div id="temp-bar" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 31%;"></div>
+            <div id="temp-bar" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 15.5%;"></div>
           </div>
           <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
             <span>0°C</span>
             <span>Optimal: 4°C - 6°C</span>
-            <span>15°C</span>
+            <span>40°C</span>
           </div>
         </div>
 
@@ -291,7 +286,7 @@
             </div>
             <div>
               <h3 class="text-base font-bold text-slate-800 font-display">Temperature History (°C)</h3>
-              <p class="text-xs text-slate-400">Recorded temperature trend over time</p>
+              <p class="text-xs text-slate-400">Recorded temperature trend over time (0°C to 40°C)</p>
             </div>
           </div>
           <span class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 border">Last 12 Hours</span>
@@ -339,7 +334,7 @@
       <!-- ALERT LEVELS TABLE (6 Cols) -->
       <div class="lg:col-span-6 glass-card p-5 flex flex-col justify-between">
         <div>
-          <!-- Header Banner matching slide -->
+          <!-- Header Banner -->
           <div class="bg-slate-900 text-white p-4 rounded-xl mb-4 shadow-sm relative overflow-hidden">
             <div class="flex items-center space-x-3">
               <div class="p-2 bg-sky-500 text-white rounded-lg">
@@ -532,7 +527,6 @@
 
         <div class="mt-4 p-3 bg-gradient-to-r from-sky-600 to-indigo-700 text-white rounded-xl flex items-center justify-between text-xs shadow-md">
           <div class="font-extrabold tracking-wide uppercase">REAL-TIME MONITORING. SAFER MILK. HEALTHIER TOMORROW.</div>
-          <span class="text-[10px] opacity-80">SIH 2026</span>
         </div>
 
       </div>
@@ -540,7 +534,7 @@
     </section>
 
 
-    <!-- 4. ESP32 LIVE CONTROLLER, TELEMETRY SIMULATOR & C++ SOURCE CODE GENERATOR -->
+    <!-- 4. ESP32 LIVE CONTROLLER & TELEMETRY SIMULATOR -->
     <section id="esp-control-hub" class="glass-card p-6 border-2 border-indigo-100">
       
       <!-- Section Title -->
@@ -552,7 +546,7 @@
             </span>
             <div>
               <h3 class="text-lg font-bold text-slate-900 font-display">ESP32 Hardware Control & Data Injection Hub</h3>
-              <p class="text-xs text-slate-500">Inject test telemetry values or copy physical ESP32 Arduino C++ code for hardware pairing.</p>
+              <p class="text-xs text-slate-500">Inject test telemetry values up to 40°C to simulate high-temperature excursions and alerts.</p>
             </div>
           </div>
         </div>
@@ -561,9 +555,6 @@
         <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
           <button id="tab-btn-sim" onclick="switchEspTab('sim')" class="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold">
             Live Stream & Manual Injection
-          </button>
-          <button id="tab-btn-code" onclick="switchEspTab('code')" class="px-3.5 py-1.5 rounded-lg hover:text-slate-900">
-            ESP32 C++ Code
           </button>
           <button id="tab-btn-logs" onclick="switchEspTab('logs')" class="px-3.5 py-1.5 rounded-lg hover:text-slate-900">
             Telemetry Logs
@@ -580,7 +571,7 @@
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
             <div class="flex items-center justify-between">
               <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i> Manual Sensor Injection
+                <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i> Manual Sensor Injection (0°C - 40°C)
               </h4>
               <span class="text-[11px] text-slate-500">Drag sliders to test instant alerts</span>
             </div>
@@ -591,12 +582,13 @@
                 <label for="input-slider-temp" class="font-bold text-slate-700">Temperature (°C):</label>
                 <span id="slider-temp-disp" class="font-mono font-bold text-red-600">6.2 °C</span>
               </div>
-              <input type="range" id="input-slider-temp" min="0" max="20" step="0.1" value="6.2" oninput="onManualTempChange(this.value)"
+              <input type="range" id="input-slider-temp" min="0" max="40" step="0.1" value="6.2" oninput="onManualTempChange(this.value)"
                      class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
               <div class="flex justify-between text-[10px] text-slate-400">
                 <span>0°C (Cold)</span>
                 <span>6°C (Normal)</span>
-                <span>10°C+ (Spoilage Risk)</span>
+                <span>20°C (Warm)</span>
+                <span>40°C (Critical Risk)</span>
               </div>
             </div>
 
@@ -636,8 +628,8 @@
               </button>
 
               <button onclick="setScenario('critical_ph')" class="p-2.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-900 font-semibold text-left transition">
-                <div class="font-bold">Critical Spoilage</div>
-                <div class="text-[10px] text-red-700">Temp: 12.4°C | pH: 5.40</div>
+                <div class="font-bold">High Heat Spoilage</div>
+                <div class="text-[10px] text-red-700">Temp: 38.5°C | pH: 5.40</div>
               </button>
 
               <button onclick="toggleTelemetryStream()" id="btn-stream-toggle" class="p-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-center transition flex flex-col items-center justify-center">
@@ -651,87 +643,7 @@
 
       </div>
 
-      <!-- TAB 2: ESP32 ARDUINO C++ CODE -->
-      <div id="tab-content-code" class="pt-5 hidden space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h4 class="text-sm font-bold text-slate-800">ESP32 Microcontroller Arduino Sketch (.ino)</h4>
-            <p class="text-xs text-slate-500">Flash this code onto your ESP32 board using Arduino IDE. Connect pH sensor to GPIO 34 and DS18B20 Temp sensor to GPIO 4.</p>
-          </div>
-          <button onclick="copyEsp32Code()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold hover:bg-slate-900">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Code
-          </button>
-        </div>
-
-        <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 max-h-96" id="esp32-code-snippet"><code>/*
-  SMART MILK CAN - ESP32 SENSOR TELEMETRY SCRIPT
-  Smart India Hackathon 2026 - Team_Unaligned
-  Hardware: ESP32 + pH Sensor (ADC GPIO34) + DS18B20 Temp Sensor (GPIO4)
-*/
-
-#include &lt;WiFi.h&gt;
-#include &lt;HTTPClient.h&gt;
-#include &lt;OneWire.h&gt;
-#include &lt;DallasTemperature.h&gt;
-
-// Wi-Fi Credentials
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
-
-// API Gateway Endpoint (Dashboard Server)
-const char* serverUrl = "http://YOUR_SERVER_IP:3000/api/telemetry";
-
-// Hardware Pins
-#define ONE_WIRE_BUS 4
-#define PH_PIN 34
-
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature tempSensors(&oneWire);
-
-void setup() {
-  Serial.begin(115200);
-  tempSensors.begin();
-  
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nWiFi Connected! IP: " + WiFi.localIP().toString());
-}
-
-void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    // 1. Read Temperature
-    tempSensors.requestTemperatures();
-    float temperatureC = tempSensors.getTempCByIndex(0);
-    
-    // 2. Read pH Level (12-bit ADC conversion)
-    int rawAdc = analogRead(PH_PIN);
-    float voltage = rawAdc * (3.3 / 4095.0);
-    float phValue = 3.5 * voltage + 0.5; // Calibration equation
-    
-    // 3. Construct JSON Payload
-    String jsonPayload = "{\"temperature\":" + String(temperatureC, 2) + 
-                         ",\"ph\":" + String(phValue, 2) + "}";
-    
-    // 4. Send HTTP POST to Dashboard
-    HTTPClient http;
-    http.begin(serverUrl);
-    http.addHeader("Content-Type", "application/json");
-    
-    int httpResponseCode = http.POST(jsonPayload);
-    Serial.printf("Telemetry sent. HTTP Code: %d\n", httpResponseCode);
-    
-    http.end();
-  }
-  
-  delay(2000); // 2-second telemetry interval
-}</code></pre>
-      </div>
-
-      <!-- TAB 3: LOGS -->
+      <!-- TAB 2: LOGS -->
       <div id="tab-content-logs" class="pt-5 hidden space-y-3">
         <div class="flex items-center justify-between">
           <h4 class="text-sm font-bold text-slate-800">Incoming Telemetry Log History</h4>
@@ -786,7 +698,6 @@ void loop() {
 
     // Chart.js Initialization
     function initCharts() {
-      // Temperature Chart Setup
       const ctxTemp = document.getElementById('chart-temp').getContext('2d');
       const gradientTemp = ctxTemp.createLinearGradient(0, 0, 0, 200);
       gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
@@ -814,7 +725,7 @@ void loop() {
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { min: 2, max: 15, grid: { color: '#f1f5f9' } },
+            y: { min: 0, max: 45, grid: { color: '#f1f5f9' } },
             x: { grid: { display: false } }
           }
         }
@@ -861,14 +772,12 @@ void loop() {
       streamInterval = setInterval(() => {
         if (!telemetryStreamActive) return;
 
-        // Subtle realistic sensor jitter
         const tempNoise = (Math.random() - 0.5) * 0.15;
         const phNoise   = (Math.random() - 0.5) * 0.04;
 
-        currentTemp = Math.min(18, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
+        currentTemp = Math.min(42, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
         currentPh   = Math.min(7.8, Math.max(4.2, parseFloat((currentPh + phNoise).toFixed(2))));
 
-        // Sync Sliders
         document.getElementById('input-slider-temp').value = currentTemp;
         document.getElementById('input-slider-ph').value = currentPh;
 
@@ -913,9 +822,9 @@ void loop() {
         currentPh = 6.32;
         addLogEntry("[WARNING SCENARIO] High Temp & dropping pH applied.");
       } else if (scen === 'critical_ph') {
-        currentTemp = 12.4;
+        currentTemp = 38.5;
         currentPh = 5.40;
-        addLogEntry("[CRITICAL SCENARIO] Severe spoilage parameters injected!");
+        addLogEntry("[CRITICAL SCENARIO] High Heat Excursion (38.5°C) & Spoilage injected!");
       }
       document.getElementById('input-slider-temp').value = currentTemp;
       document.getElementById('input-slider-ph').value = currentPh;
@@ -924,19 +833,16 @@ void loop() {
 
     // Core Dashboard UI Updater
     function updateDashboardValues() {
-      // 1. Update Numerical Values & Sliders text
       document.getElementById('val-temp').innerText = currentTemp.toFixed(1);
       document.getElementById('slider-temp-disp').innerText = `${currentTemp.toFixed(1)} °C`;
       document.getElementById('val-ph').innerText = currentPh.toFixed(2);
       document.getElementById('slider-ph-disp').innerText = currentPh.toFixed(2);
 
-      // 2. Progress Bars
-      const tempPct = Math.min(100, Math.max(0, (currentTemp / 15) * 100));
+      const tempPct = Math.min(100, Math.max(0, (currentTemp / 40) * 100));
       document.getElementById('temp-bar').style.width = `${tempPct}%`;
       const phPct = Math.min(100, Math.max(0, ((currentPh - 4.0) / 4.0) * 100));
       document.getElementById('ph-bar').style.width = `${phPct}%`;
 
-      // 3. Update Chart Datasets
       tempHistory.shift();
       tempHistory.push(currentTemp);
       chartTempInstance.data.datasets[0].data = tempHistory;
@@ -947,13 +853,11 @@ void loop() {
       chartPhInstance.data.datasets[0].data = phHistory;
       chartPhInstance.update('none');
 
-      // Averages
       const tempAvg = (tempHistory.reduce((a,b)=>a+b,0)/12).toFixed(1);
       const phAvg = (phHistory.reduce((a,b)=>a+b,0)/12).toFixed(2);
       document.getElementById('temp-avg').innerText = `${tempAvg}°C`;
       document.getElementById('ph-avg').innerText = phAvg;
 
-      // 4. Evaluate Thresholds & Update Hero Card & Alert Table
       evaluateQualityState();
     }
 
@@ -970,14 +874,12 @@ void loop() {
       const rowWarning = document.getElementById('row-warning');
       const rowCritical = document.getElementById('row-critical');
 
-      // Reset Table Rows
       rowSafe.className = "hover:bg-slate-50 transition-colors";
       rowWarning.className = "hover:bg-slate-50 transition-colors";
       rowCritical.className = "hover:bg-slate-50 transition-colors";
 
-      let state = 'SAFE'; // SAFE | EARLY WARNING | CRITICAL
+      let state = 'SAFE';
 
-      // Condition Checks
       if (currentPh < 6.0 || currentTemp > 10.0) {
         state = 'CRITICAL';
       } else if (currentPh < 6.4 || currentTemp > 7.8) {
@@ -1073,31 +975,18 @@ void loop() {
     // ESP32 Control Hub Tab Switcher
     function switchEspTab(tabName) {
       document.getElementById('tab-content-sim').classList.add('hidden');
-      document.getElementById('tab-content-code').classList.add('hidden');
       document.getElementById('tab-content-logs').classList.add('hidden');
 
       document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
-      document.getElementById('tab-btn-code').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
       document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
 
       if (tabName === 'sim') {
         document.getElementById('tab-content-sim').classList.remove('hidden');
         document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
-      } else if (tabName === 'code') {
-        document.getElementById('tab-content-code').classList.remove('hidden');
-        document.getElementById('tab-btn-code').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
       } else if (tabName === 'logs') {
         document.getElementById('tab-content-logs').classList.remove('hidden');
         document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
       }
-    }
-
-    // Copy C++ Code Snippet
-    function copyEsp32Code() {
-      const codeText = document.getElementById('esp32-code-snippet').innerText;
-      navigator.clipboard.writeText(codeText).then(() => {
-        alert("ESP32 Arduino C++ code copied to clipboard!");
-      });
     }
 
     // Telemetry Event Log Helper
@@ -1129,7 +1018,7 @@ void loop() {
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `SIH_SmartMilk_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      link.setAttribute("download", `SmartMilk_Quality_Report_${new Date().toISOString().slice(0,10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
