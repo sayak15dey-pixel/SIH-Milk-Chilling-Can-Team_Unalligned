@@ -27,6 +27,22 @@
       border-radius: 1.25rem;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     }
+
+    /* GUARANTEED STATIC GRAPH CONTAINER DIMENSIONS (Offline & CDN independent) */
+    #temp-graph-container, #ph-graph-container {
+      min-height: 260px !important;
+      height: 260px !important;
+      width: 100% !important;
+      display: block !important;
+      position: relative !important;
+    }
+
+    #temp-graph-container svg, #ph-graph-container svg {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 250px !important;
+      display: block !important;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 pb-12">
@@ -65,7 +81,8 @@
           </select>
         </div>
 
-        <!-- Live Sensor Badge -->
+        <!-- Live Clock & Sensor Badge -->
+        <span id="clock-text" class="text-xs font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-xl border border-slate-300">--:--:--</span>
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-extrabold border border-emerald-300">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span> <span id="txt-live-sensor">Live Sensor Active</span>
         </span>
@@ -197,7 +214,7 @@
           </div>
 
           <!-- SVG Graph Container with Large Height -->
-          <div id="temp-graph-container" class="h-64 w-full relative bg-slate-50/70 rounded-2xl border border-slate-200 p-2"></div>
+          <div id="temp-graph-container" style="min-height: 260px; height: 260px; width: 100%; display: block;" class="h-64 w-full relative bg-slate-50/70 rounded-2xl border border-slate-200 p-2"></div>
 
           <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs sm:text-sm text-slate-700 font-extrabold">
             <span class="flex items-center gap-1">Lowest: <strong id="temp-min" class="text-slate-900 text-sm">6.1°C</strong></span>
@@ -219,7 +236,7 @@
           </div>
 
           <!-- SVG Graph Container with Large Height -->
-          <div id="ph-graph-container" class="h-64 w-full relative bg-slate-50/70 rounded-2xl border border-slate-200 p-2"></div>
+          <div id="ph-graph-container" style="min-height: 260px; height: 260px; width: 100%; display: block;" class="h-64 w-full relative bg-slate-50/70 rounded-2xl border border-slate-200 p-2"></div>
 
           <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs sm:text-sm text-slate-700 font-extrabold">
             <span class="flex items-center gap-1">Lowest: <strong id="ph-min" class="text-slate-900 text-sm">6.58</strong></span>
@@ -660,70 +677,100 @@
       return labels;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      updateClock();
-      setInterval(updateClock, 1000);
+    function initApp() {
+      try { lucide.createIcons(); } catch (e) {}
+      try { updateClock(); } catch (e) {}
+      
+      if (!window.__clock_interval) {
+        window.__clock_interval = setInterval(updateClock, 1000);
+      }
 
+      window.removeEventListener('resize', renderCanvasCharts);
       window.addEventListener('resize', renderCanvasCharts);
+
       updateDashboard();
 
-      // Sensor telemetry update every 3s
-      setInterval(() => {
-        const tempNoise = (Math.random() - 0.5) * 0.08;
-        const phNoise   = (Math.random() - 0.5) * 0.02;
+      if (!window.__sensor_interval) {
+        window.__sensor_interval = setInterval(() => {
+          const tempNoise = (Math.random() - 0.5) * 0.08;
+          const phNoise   = (Math.random() - 0.5) * 0.02;
 
-        currentTemp = Math.min(40, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
-        currentPh   = Math.min(7.8, Math.max(4.0, parseFloat((currentPh + phNoise).toFixed(2))));
+          currentTemp = Math.min(40, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
+          currentPh   = Math.min(7.8, Math.max(4.0, parseFloat((currentPh + phNoise).toFixed(2))));
 
-        document.getElementById('slider-temp').value = currentTemp;
-        document.getElementById('slider-ph').value = currentPh;
+          const sliderTemp = document.getElementById('slider-temp');
+          const sliderPh = document.getElementById('slider-ph');
+          if (sliderTemp) sliderTemp.value = currentTemp;
+          if (sliderPh) sliderPh.value = currentPh;
 
-        updateDashboard();
-      }, 3000);
+          updateDashboard();
+        }, 3000);
+      }
+    }
+
+    // MULTI-STAGE BULLETPROOF INITIALIZATION (ReadyState + DOMContentLoaded + window.onload)
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
     });
+
+    window.addEventListener('load', () => {
+      initApp();
+      setTimeout(renderCanvasCharts, 50);
+      setTimeout(renderCanvasCharts, 250);
+    });
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      initApp();
+      setTimeout(renderCanvasCharts, 50);
+    }
 
     function changeLanguage(langKey) {
       currentLang = langKey;
       const dict = i18n[langKey] || i18n['en'];
 
-      document.getElementById('txt-header-title').innerText = dict.title;
-      document.getElementById('txt-header-sub').innerText = dict.sub;
-      document.getElementById('txt-live-sensor').innerText = dict.liveSensor;
+      const setT = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
+      const setH = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
 
-      document.getElementById('txt-temp-title').innerText = dict.tempTitle;
-      document.getElementById('txt-temp-sub').innerText = dict.tempSub;
+      setT('txt-header-title', dict.title);
+      setT('txt-header-sub', dict.sub);
+      setT('txt-live-sensor', dict.liveSensor);
 
-      document.getElementById('txt-ph-title').innerText = dict.phTitle;
-      document.getElementById('txt-ph-sub').innerText = dict.phSub;
+      setT('txt-temp-title', dict.tempTitle);
+      setT('txt-temp-sub', dict.tempSub);
 
-      document.getElementById('txt-temp-chart-title').innerHTML = `<i data-lucide="trending-down" class="w-4.5 h-4.5 text-rose-500"></i> ${dict.tempChartTitle}`;
-      document.getElementById('txt-ph-chart-title').innerHTML = `<i data-lucide="activity" class="w-4.5 h-4.5 text-blue-600"></i> ${dict.phChartTitle}`;
+      setT('txt-ph-title', dict.phTitle);
+      setT('txt-ph-sub', dict.phSub);
 
-      document.getElementById('txt-alerts-title').innerHTML = `<i data-lucide="list-checks" class="w-5 h-5 text-blue-600"></i> ${dict.alertsTitle}`;
-      document.getElementById('txt-safe-head').innerText = dict.safeHead;
-      document.getElementById('txt-safe-desc').innerText = dict.safeDesc;
+      setH('txt-temp-chart-title', `<i data-lucide="trending-down" class="w-4.5 h-4.5 text-rose-500"></i> ${dict.tempChartTitle}`);
+      setH('txt-ph-chart-title', `<i data-lucide="activity" class="w-4.5 h-4.5 text-blue-600"></i> ${dict.phChartTitle}`);
 
-      document.getElementById('txt-warn-head').innerText = dict.warnHead;
-      document.getElementById('txt-warn-desc').innerText = dict.warnDesc;
+      setH('txt-alerts-title', `<i data-lucide="list-checks" class="w-5 h-5 text-blue-600"></i> ${dict.alertsTitle}`);
+      setT('txt-safe-head', dict.safeHead);
+      setT('txt-safe-desc', dict.safeDesc);
 
-      document.getElementById('txt-crit-head').innerText = dict.critHead;
-      document.getElementById('txt-crit-desc').innerText = dict.critDesc;
+      setT('txt-warn-head', dict.warnHead);
+      setT('txt-warn-desc', dict.warnDesc);
 
-      document.getElementById('txt-flow-title').innerHTML = `<i data-lucide="help-circle" class="w-5 h-5 text-indigo-600"></i> ${dict.flowTitle}`;
-      document.getElementById('txt-flow-step1').innerText = dict.flowStep1;
-      document.getElementById('txt-flow-step2').innerText = dict.flowStep2;
-      document.getElementById('txt-flow-step3').innerText = dict.flowStep3;
-      document.getElementById('txt-farmer-benefit').innerText = dict.farmerBenefit;
+      setT('txt-crit-head', dict.critHead);
+      setT('txt-crit-desc', dict.critDesc);
 
-      document.getElementById('txt-demo-title').innerHTML = `<i data-lucide="sliders" class="w-5 h-5 text-blue-600"></i> ${dict.demoTitle}`;
+      setH('txt-flow-title', `<i data-lucide="help-circle" class="w-5 h-5 text-indigo-600"></i> ${dict.flowTitle}`);
+      setT('txt-flow-step1', dict.flowStep1);
+      setT('txt-flow-step2', dict.flowStep2);
+      setT('txt-flow-step3', dict.flowStep3);
+      setT('txt-farmer-benefit', dict.farmerBenefit);
+
+      setH('txt-demo-title', `<i data-lucide="sliders" class="w-5 h-5 text-blue-600"></i> ${dict.demoTitle}`);
 
       updateDashboard();
     }
 
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock-text').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const clockEl = document.getElementById('clock-text');
+      if (clockEl) {
+        clockEl.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
     }
 
     function onTempSlider(val) {
@@ -826,7 +873,7 @@
       });
 
       container.innerHTML = `
-        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: 100%; min-height: 250px; display: block;" class="w-full h-full overflow-visible" preserveAspectRatio="none">
           <defs>
             <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.25" />
@@ -923,7 +970,7 @@
       });
 
       container.innerHTML = `
-        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: 100%; min-height: 250px; display: block;" class="w-full h-full overflow-visible" preserveAspectRatio="none">
           <defs>
             <linearGradient id="phGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#2563eb" stop-opacity="0.25" />
@@ -1040,14 +1087,24 @@
       const dict = i18n[currentLang] || i18n['en'];
 
       // 1. Update Numerical Values
-      document.getElementById('val-temp').innerText = currentTemp.toFixed(1);
-      document.getElementById('slider-temp-text').innerText = `${currentTemp.toFixed(1)} °C`;
-      document.getElementById('val-ph').innerText = currentPh.toFixed(2);
-      document.getElementById('slider-ph-text').innerText = `${currentPh.toFixed(2)}`;
+      const valTemp = document.getElementById('val-temp');
+      if (valTemp) valTemp.innerText = currentTemp.toFixed(1);
+
+      const sliderTempText = document.getElementById('slider-temp-text');
+      if (sliderTempText) sliderTempText.innerText = `${currentTemp.toFixed(1)} °C`;
+
+      const valPh = document.getElementById('val-ph');
+      if (valPh) valPh.innerText = currentPh.toFixed(2);
+
+      const sliderPhText = document.getElementById('slider-ph-text');
+      if (sliderPhText) sliderPhText.innerText = `${currentPh.toFixed(2)}`;
 
       // 2. Update Progress Bars
-      document.getElementById('temp-bar').style.width = `${Math.min(100, (currentTemp / 40) * 100)}%`;
-      document.getElementById('ph-bar').style.width = `${Math.min(100, ((currentPh - 4) / 4) * 100)}%`;
+      const tempBar = document.getElementById('temp-bar');
+      if (tempBar) tempBar.style.width = `${Math.min(100, (currentTemp / 40) * 100)}%`;
+
+      const phBar = document.getElementById('ph-bar');
+      if (phBar) phBar.style.width = `${Math.min(100, ((currentPh - 4) / 4) * 100)}%`;
 
       // 3. Update Chart 0h (Now) Data Point
       tempHistory[6] = currentTemp;
@@ -1064,13 +1121,23 @@
       const phMaxVal = Math.max(...phHistory).toFixed(2);
       const phAvgVal = (phHistory.reduce((a,b)=>a+b,0)/phHistory.length).toFixed(2);
 
-      document.getElementById('temp-min').innerText = `${tempMinVal}°C`;
-      document.getElementById('temp-max').innerText = `${tempMaxVal}°C`;
-      document.getElementById('temp-avg').innerText = `${tempAvgVal}°C`;
+      const tempMin = document.getElementById('temp-min');
+      if (tempMin) tempMin.innerText = `${tempMinVal}°C`;
 
-      document.getElementById('ph-min').innerText = phMinVal;
-      document.getElementById('ph-max').innerText = phMaxVal;
-      document.getElementById('ph-avg').innerText = phAvgVal;
+      const tempMax = document.getElementById('temp-max');
+      if (tempMax) tempMax.innerText = `${tempMaxVal}°C`;
+
+      const tempAvg = document.getElementById('temp-avg');
+      if (tempAvg) tempAvg.innerText = `${tempAvgVal}°C`;
+
+      const phMin = document.getElementById('ph-min');
+      if (phMin) phMin.innerText = phMinVal;
+
+      const phMax = document.getElementById('ph-max');
+      if (phMax) phMax.innerText = phMaxVal;
+
+      const phAvg = document.getElementById('ph-avg');
+      if (phAvg) phAvg.innerText = phAvgVal;
 
       // 4. Status Evaluation
       const tempBadge = document.getElementById('temp-badge');
@@ -1080,9 +1147,9 @@
       const rowWarning = document.getElementById('row-warning');
       const rowCritical = document.getElementById('row-critical');
 
-      rowSafe.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
-      rowWarning.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
-      rowCritical.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
+      if (rowSafe) rowSafe.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
+      if (rowWarning) rowWarning.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
+      if (rowCritical) rowCritical.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-3";
 
       let status = 'SAFE';
       if (currentPh < 6.0 || currentTemp > 10.0) {
@@ -1092,30 +1159,44 @@
       }
 
       if (status === 'SAFE') {
-        tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
-        tempBadge.innerText = dict.tempSafe;
-        phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
-        phBadge.innerText = dict.phSafe;
-
-        rowSafe.className = "p-3 rounded-xl bg-emerald-50 border-2 border-emerald-400 flex items-start space-x-3 shadow-xs";
+        if (tempBadge) {
+          tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
+          tempBadge.innerText = dict.tempSafe;
+        }
+        if (phBadge) {
+          phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
+          phBadge.innerText = dict.phSafe;
+        }
+        if (rowSafe) rowSafe.className = "p-3 rounded-xl bg-emerald-50 border-2 border-emerald-400 flex items-start space-x-3 shadow-xs";
       } else if (status === 'WARNING') {
-        tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300";
-        tempBadge.innerText = currentTemp > 7.8 ? dict.tempWarm : dict.tempSafe;
-        phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300";
-        phBadge.innerText = currentPh < 6.4 ? dict.phDropping : dict.phSafe;
-
-        rowWarning.className = "p-3 rounded-xl bg-amber-50 border-2 border-amber-400 flex items-start space-x-3 shadow-xs";
+        if (tempBadge) {
+          tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300";
+          tempBadge.innerText = currentTemp > 7.8 ? dict.tempWarm : dict.tempSafe;
+        }
+        if (phBadge) {
+          phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300";
+          phBadge.innerText = currentPh < 6.4 ? dict.phDropping : dict.phSafe;
+        }
+        if (rowWarning) rowWarning.className = "p-3 rounded-xl bg-amber-50 border-2 border-amber-400 flex items-start space-x-3 shadow-xs";
       } else if (status === 'CRITICAL') {
-        tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-900 border border-rose-300";
-        tempBadge.innerText = "HIGH TEMP";
-        phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-900 border border-rose-300";
-        phBadge.innerText = "SOUR RISK";
-
-        rowCritical.className = "p-3 rounded-xl bg-rose-50 border-2 border-rose-500 flex items-start space-x-3 shadow-xs";
+        if (tempBadge) {
+          tempBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-900 border border-rose-300";
+          tempBadge.innerText = "HIGH TEMP";
+        }
+        if (phBadge) {
+          phBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-900 border border-rose-300";
+          phBadge.innerText = "SOUR RISK";
+        }
+        if (rowCritical) rowCritical.className = "p-3 rounded-xl bg-rose-50 border-2 border-rose-500 flex items-start space-x-3 shadow-xs";
       }
 
-      lucide.createIcons();
+      try {
+        lucide.createIcons();
+      } catch (e) {}
     }
+
+    // Immediate initial call invocation
+    initApp();
   </script>
 
 </body>
