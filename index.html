@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Milk Can Quality Dashboard | SIH 2026 - Team Unaligned</title>
+  
+  <!-- Google Fonts & Tailwind CSS CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+
+    .glass-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      border-radius: 1rem;
+      transition: all 0.25s ease-in-out;
+    }
+
+    .glass-card:hover {
+      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    .pulse-green {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    .pulse-amber {
+      animation: pulse-amber 1.5s infinite;
+    }
+    @keyframes pulse-amber {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 pb-12">
+
+  <!-- TOP BRANDING & SIH HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Title Section -->
+      <div class="flex items-center space-x-3.5">
+        <div class="bg-gradient-to-tr from-sky-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-sky-500/20">
+          <i data-lucide="milk" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-300 tracking-wider uppercase">Team_Unaligned</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+              <i data-lucide="award" class="w-3 h-3"></i> SMART INDIA HACKATHON 2026
+            </span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-display mt-0.5 flex items-center gap-2">
+            SMART MILK CAN
+            <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-green"></span> LIVE STATUS
+            </span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Live Connectivity & Clock -->
+      <div class="flex items-center gap-4 text-sm">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg text-slate-600 font-medium">
+          <i data-lucide="wifi" class="w-4 h-4 text-emerald-600"></i>
+          <span>Connected</span>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-100 px-3.5 py-1.5 rounded-lg text-slate-700 font-semibold font-mono shadow-inner" id="live-clock">
+          <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
+          <span id="clock-text">--:--:--</span>
+        </div>
+        <button id="btn-export" onclick="exportDataCSV()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs transition shadow-sm">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Report
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN DASHBOARD CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+    <!-- SUB HEADER BANNER -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 font-display">Software Implementation & Telemetry Monitor</h2>
+        <p class="text-xs text-slate-500">Real-time IoT milk quality monitoring system with predictive degradation alert matrix.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleAudioAlert()" id="btn-audio-toggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200">
+          <i data-lucide="volume-2" id="icon-audio" class="w-4 h-4 text-slate-600"></i>
+          <span id="text-audio">Sound: ON</span>
+        </button>
+        <button onclick="scrollToSection('esp-control-hub')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">
+          <i data-lucide="cpu" class="w-4 h-4"></i>
+          ESP32 Live Controller & Code
+        </button>
+      </div>
+    </div>
+
+    <!-- 1. DASHBOARD SYSTEM: LIVE METRICS & HERO QUALITY STATUS -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-sky-500"></span> Dashboard System
+        </h2>
+        <span class="text-xs text-slate-400">Auto-refreshing every 2 seconds</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+
+        <!-- TEMPERATURE CARD (4 Cols) -->
+        <div class="md:col-span-4 glass-card p-5 relative overflow-hidden group">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="p-3 bg-red-50 text-red-500 rounded-xl border border-red-100 group-hover:scale-105 transition-transform">
+                <i data-lucide="thermometer" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Temperature</p>
+                <h3 class="text-sm font-semibold text-slate-700">Milk Temperature</h3>
+              </div>
+            </div>
+            <span id="temp-status-pill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL
+            </span>
+          </div>
+
+          <div class="mt-4 flex items-baseline justify-between">
+            <div class="flex items-baseline space-x-1">
+              <span id="val-temp" class="text-4xl font-extrabold text-slate-900 font-display">6.2</span>
+              <span class="text-lg font-bold text-slate-500">°C</span>
+            </div>
+            <div class="text-right text-xs text-slate-500 font-medium">
+              <div>Target: &lt; 8.0 °C</div>
+              <div class="text-emerald-600 font-semibold" id="temp-range-text">Safe Chilling Zone</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mt-4 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div id="temp-bar" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 31%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+            <span>0°C</span>
+            <span>Optimal: 4°C - 6°C</span>
+            <span>15°C</span>
+          </div>
+        </div>
+
+        <!-- pH LEVEL CARD (4 Cols) -->
+        <div class="md:col-span-4 glass-card p-5 relative overflow-hidden group">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="p-3 bg-sky-50 text-sky-600 rounded-xl border border-sky-100 group-hover:scale-105 transition-transform">
+                <i data-lucide="flask-conical" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">pH</p>
+                <h3 class="text-sm font-semibold text-slate-700">Milk Acidity Level</h3>
+              </div>
+            </div>
+            <span id="ph-status-pill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL
+            </span>
+          </div>
+
+          <div class="mt-4 flex items-baseline justify-between">
+            <div class="flex items-baseline space-x-1">
+              <span id="val-ph" class="text-4xl font-extrabold text-slate-900 font-display">6.58</span>
+              <span class="text-xs text-slate-400 font-normal">pH</span>
+            </div>
+            <div class="text-right text-xs text-slate-500 font-medium">
+              <div>Ideal: 6.40 - 6.80</div>
+              <div class="text-emerald-600 font-semibold" id="ph-range-text">Fresh Raw Milk</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mt-4 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div id="ph-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 64.5%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+            <span>4.0 (Sour)</span>
+            <span>Ideal: 6.6</span>
+            <span>8.0 (Alkaline)</span>
+          </div>
+        </div>
+
+        <!-- MILK QUALITY STATUS HERO BANNER (4 Cols) -->
+        <div id="hero-status-card" class="md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-white relative overflow-hidden transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Overall Quality Check</span>
+            <span id="hero-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-600 text-white">LIVE MONITOR</span>
+          </div>
+
+          <div class="my-3 flex items-center space-x-4">
+            <div id="hero-icon-container" class="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
+              <i data-lucide="check-circle" id="hero-icon" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 font-semibold">MILK QUALITY STATUS</p>
+              <h3 id="hero-status-title" class="text-2xl font-black text-emerald-700 font-display">SAFE</h3>
+              <p id="hero-status-subtext" class="text-xs font-medium text-slate-600 mt-0.5">Milk parameters within expected range.</p>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-emerald-100/80 flex items-center justify-between text-xs text-slate-500">
+            <span>Safety Threshold: <strong class="text-slate-700">100% Compliant</strong></span>
+            <span class="flex items-center gap-1 text-emerald-700 font-semibold">
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Grade A Safe
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- 2. GRAPHICAL DATA SECTION (CHARTS) -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+      <!-- TEMPERATURE HISTORY CHART -->
+      <div class="glass-card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="p-1.5 bg-red-100 text-red-600 rounded-lg">
+              <i data-lucide="trending-down" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800 font-display">Temperature History (°C)</h3>
+              <p class="text-xs text-slate-400">Recorded temperature trend over time</p>
+            </div>
+          </div>
+          <span class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 border">Last 12 Hours</span>
+        </div>
+
+        <div class="h-60 w-full relative">
+          <canvas id="chart-temp"></canvas>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Chilling Line (&lt; 8°C)</span>
+          <span class="font-mono text-slate-600">Avg: <strong id="temp-avg">6.1°C</strong></span>
+        </div>
+      </div>
+
+      <!-- pH HISTORY CHART -->
+      <div class="glass-card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800 font-display">pH History</h3>
+              <p class="text-xs text-slate-400">Acidity curve stability monitoring</p>
+            </div>
+          </div>
+          <span class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 border">Last 12 Hours</span>
+        </div>
+
+        <div class="h-60 w-full relative">
+          <canvas id="chart-ph"></canvas>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Safe Zone (6.4 - 6.8 pH)</span>
+          <span class="font-mono text-slate-600">Avg: <strong id="ph-avg">6.59</strong></span>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- 3. ALERT LEVELS & INTELLIGENT ALERT FLOWCHART (2 COLS) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ALERT LEVELS TABLE (6 Cols) -->
+      <div class="lg:col-span-6 glass-card p-5 flex flex-col justify-between">
+        <div>
+          <!-- Header Banner matching slide -->
+          <div class="bg-slate-900 text-white p-4 rounded-xl mb-4 shadow-sm relative overflow-hidden">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-sky-500 text-white rounded-lg">
+                <i data-lucide="droplet" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold tracking-wide uppercase font-display">MILK QUALITY ALERT SYSTEM</h3>
+                <p class="text-xs text-sky-200 font-medium">Real-time Monitoring &nbsp;|&nbsp; Early Detection &nbsp;|&nbsp; Safer Milk</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert Matrix Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
+                  <th class="p-3 rounded-l-lg">Status</th>
+                  <th class="p-3">Condition</th>
+                  <th class="p-3 rounded-r-lg">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium">
+                
+                <!-- SAFE ROW -->
+                <tr id="row-safe" class="hover:bg-slate-50 transition-colors">
+                  <td class="p-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> SAFE
+                    </span>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5">
+                      <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-600"></i>
+                      <span>Parameters within expected range.</span>
+                    </div>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5 font-semibold text-emerald-700">
+                      <i data-lucide="shield-check" class="w-4 h-4"></i>
+                      <span>Normal monitoring.</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- EARLY WARNING ROW -->
+                <tr id="row-warning" class="hover:bg-slate-50 transition-colors">
+                  <td class="p-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i> EARLY WARNING
+                    </span>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5">
+                      <i data-lucide="trending-down" class="w-4 h-4 text-amber-600"></i>
+                      <span>Abnormal downward pH trend.</span>
+                    </div>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5 font-semibold text-amber-800">
+                      <i data-lucide="search" class="w-4 h-4 text-amber-600"></i>
+                      <span>Check temperature and batch.</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- CRITICAL ROW -->
+                <tr id="row-critical" class="hover:bg-slate-50 transition-colors">
+                  <td class="p-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">
+                      <i data-lucide="siren" class="w-3.5 h-3.5 text-red-600"></i> CRITICAL
+                    </span>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5">
+                      <i data-lucide="thermometer-snowflake" class="w-4 h-4 text-red-600"></i>
+                      <span>Validated pH threshold crossed / prolonged temp excursion.</span>
+                    </div>
+                  </td>
+                  <td class="p-3 text-slate-700">
+                    <div class="flex items-center gap-1.5 font-semibold text-red-700">
+                      <i data-lucide="phone-call" class="w-4 h-4 text-red-600"></i>
+                      <span>Immediate inspection recommended.</span>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+          <span>Threshold Algorithm: Dynamic Rolling Average</span>
+          <span class="text-sky-600 font-medium cursor-pointer hover:underline" onclick="scrollToSection('esp-control-hub')">Configure Thresholds &rarr;</span>
+        </div>
+      </div>
+
+
+      <!-- INTELLIGENT ALERT SYSTEM FLOWCHART (6 Cols) -->
+      <div class="lg:col-span-6 glass-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-base font-bold text-slate-900 font-display flex items-center gap-2">
+            <i data-lucide="git-fork" class="w-5 h-5 text-indigo-600"></i> INTELLIGENT ALERT SYSTEM
+          </h3>
+          <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">Live Hardware Flow</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">Real-time signal path from physical sensors to cloud analysis & emergency notification dispatch.</p>
+
+        <!-- FLOW DIAGRAM CARDS -->
+        <div class="space-y-3 relative text-xs">
+
+          <!-- Step 1: pH Sensor -->
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold">1</div>
+              <div>
+                <h4 class="font-bold text-slate-800">pH & Temperature Sensor</h4>
+                <p class="text-slate-500 text-[11px]">Measures physical milk parameters in real-time</p>
+              </div>
+            </div>
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+          </div>
+
+          <div class="flex justify-center text-slate-400 -my-1">
+            <i data-lucide="arrow-down" class="w-4 h-4 animate-bounce"></i>
+          </div>
+
+          <!-- Step 2: ESP32 -->
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">2</div>
+              <div>
+                <h4 class="font-bold text-slate-800">ESP32 Microcontroller</h4>
+                <p class="text-slate-500 text-[11px]">Reads analog sensor values and applies kalman filter</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-200 text-slate-700 font-mono">ADC 12-bit</span>
+          </div>
+
+          <div class="flex justify-center text-slate-400 -my-1">
+            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+          </div>
+
+          <!-- Step 3: Cloud & Analyse -->
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold">3</div>
+              <div>
+                <h4 class="font-bold text-slate-800">Send Data to Cloud & Analyse Trend</h4>
+                <p class="text-slate-500 text-[11px]">Uploads real-time data & checks threshold algorithm</p>
+              </div>
+            </div>
+            <i data-lucide="cloud-lightning" class="w-4 h-4 text-sky-500"></i>
+          </div>
+
+          <!-- Dual Decision Branch -->
+          <div class="grid grid-cols-2 gap-3 pt-1">
+
+            <!-- Normal Branch -->
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-emerald-700 tracking-wider">NORMAL PATH</span>
+                <h5 class="font-bold text-emerald-900 mt-1">SAFE STATUS</h5>
+                <p class="text-[11px] text-emerald-700 mt-0.5">pH within expected range. Milk quality is good.</p>
+              </div>
+              <div class="mt-3 flex items-center gap-1 text-emerald-800 font-semibold">
+                <i data-lucide="check" class="w-4 h-4"></i> Normal Monitoring
+              </div>
+            </div>
+
+            <!-- Abnormal Branch -->
+            <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-rose-700 tracking-wider">ABNORMAL PATH</span>
+                <h5 class="font-bold text-rose-900 mt-1">WARNING / ALERT</h5>
+                <p class="text-[11px] text-rose-700 mt-0.5">Milk quality deteriorating. Trigger notification.</p>
+              </div>
+              <div class="mt-3 p-2 bg-white rounded-lg border border-rose-200 flex items-center justify-between text-rose-800 font-bold">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="smartphone" class="w-4 h-4 text-rose-600"></i> Milkman's Phone
+                </span>
+                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="mt-4 p-3 bg-gradient-to-r from-sky-600 to-indigo-700 text-white rounded-xl flex items-center justify-between text-xs shadow-md">
+          <div class="font-extrabold tracking-wide uppercase">REAL-TIME MONITORING. SAFER MILK. HEALTHIER TOMORROW.</div>
+          <span class="text-[10px] opacity-80">SIH 2026</span>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- 4. ESP32 LIVE CONTROLLER, TELEMETRY SIMULATOR & C++ SOURCE CODE GENERATOR -->
+    <section id="esp-control-hub" class="glass-card p-6 border-2 border-indigo-100">
+      
+      <!-- Section Title -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="p-2 bg-indigo-600 text-white rounded-xl">
+              <i data-lucide="cpu" class="w-5 h-5"></i>
+            </span>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 font-display">ESP32 Hardware Control & Data Injection Hub</h3>
+              <p class="text-xs text-slate-500">Inject test telemetry values or copy physical ESP32 Arduino C++ code for hardware pairing.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
+          <button id="tab-btn-sim" onclick="switchEspTab('sim')" class="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold">
+            Live Stream & Manual Injection
+          </button>
+          <button id="tab-btn-code" onclick="switchEspTab('code')" class="px-3.5 py-1.5 rounded-lg hover:text-slate-900">
+            ESP32 C++ Code
+          </button>
+          <button id="tab-btn-logs" onclick="switchEspTab('logs')" class="px-3.5 py-1.5 rounded-lg hover:text-slate-900">
+            Telemetry Logs
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: SIMULATOR & MANUAL INJECTION -->
+      <div id="tab-content-sim" class="pt-5 space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Left Column: Manual Parameter Sliders -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i> Manual Sensor Injection
+              </h4>
+              <span class="text-[11px] text-slate-500">Drag sliders to test instant alerts</span>
+            </div>
+
+            <!-- Temperature Slider -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <label for="input-slider-temp" class="font-bold text-slate-700">Temperature (°C):</label>
+                <span id="slider-temp-disp" class="font-mono font-bold text-red-600">6.2 °C</span>
+              </div>
+              <input type="range" id="input-slider-temp" min="0" max="20" step="0.1" value="6.2" oninput="onManualTempChange(this.value)"
+                     class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>0°C (Cold)</span>
+                <span>6°C (Normal)</span>
+                <span>10°C+ (Spoilage Risk)</span>
+              </div>
+            </div>
+
+            <!-- pH Slider -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <label for="input-slider-ph" class="font-bold text-slate-700">pH Acidity Level:</label>
+                <span id="slider-ph-disp" class="font-mono font-bold text-sky-600">6.58</span>
+              </div>
+              <input type="range" id="input-slider-ph" min="4.0" max="8.0" step="0.01" value="6.58" oninput="onManualPhChange(this.value)"
+                     class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>4.0 (Sour Milk)</span>
+                <span>6.6 (Fresh Milk)</span>
+                <span>8.0 (Alkaline)</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Quick Simulation Scenarios -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="play-circle" class="w-4 h-4 text-emerald-600"></i> Preset Test Scenarios
+            </h4>
+            <p class="text-xs text-slate-500">Click a scenario button to simulate physical sensor conditions:</p>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button onclick="setScenario('normal')" class="p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-semibold text-left transition">
+                <div class="font-bold">Fresh Milk (SAFE)</div>
+                <div class="text-[10px] text-emerald-600">Temp: 5.5°C | pH: 6.65</div>
+              </button>
+
+              <button onclick="setScenario('warning')" class="p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-semibold text-left transition">
+                <div class="font-bold">Early Souring</div>
+                <div class="text-[10px] text-amber-700">Temp: 8.5°C | pH: 6.32</div>
+              </button>
+
+              <button onclick="setScenario('critical_ph')" class="p-2.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-900 font-semibold text-left transition">
+                <div class="font-bold">Critical Spoilage</div>
+                <div class="text-[10px] text-red-700">Temp: 12.4°C | pH: 5.40</div>
+              </button>
+
+              <button onclick="toggleTelemetryStream()" id="btn-stream-toggle" class="p-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-center transition flex flex-col items-center justify-center">
+                <span id="text-stream-btn">Stream: ON</span>
+                <span class="text-[10px] opacity-80">Auto 2s update</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 2: ESP32 ARDUINO C++ CODE -->
+      <div id="tab-content-code" class="pt-5 hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800">ESP32 Microcontroller Arduino Sketch (.ino)</h4>
+            <p class="text-xs text-slate-500">Flash this code onto your ESP32 board using Arduino IDE. Connect pH sensor to GPIO 34 and DS18B20 Temp sensor to GPIO 4.</p>
+          </div>
+          <button onclick="copyEsp32Code()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold hover:bg-slate-900">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Code
+          </button>
+        </div>
+
+        <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 max-h-96" id="esp32-code-snippet"><code>/*
+  SMART MILK CAN - ESP32 SENSOR TELEMETRY SCRIPT
+  Smart India Hackathon 2026 - Team_Unaligned
+  Hardware: ESP32 + pH Sensor (ADC GPIO34) + DS18B20 Temp Sensor (GPIO4)
+*/
+
+#include &lt;WiFi.h&gt;
+#include &lt;HTTPClient.h&gt;
+#include &lt;OneWire.h&gt;
+#include &lt;DallasTemperature.h&gt;
+
+// Wi-Fi Credentials
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+// API Gateway Endpoint (Dashboard Server)
+const char* serverUrl = "http://YOUR_SERVER_IP:3000/api/telemetry";
+
+// Hardware Pins
+#define ONE_WIRE_BUS 4
+#define PH_PIN 34
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature tempSensors(&oneWire);
+
+void setup() {
+  Serial.begin(115200);
+  tempSensors.begin();
+  
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi Connected! IP: " + WiFi.localIP().toString());
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    // 1. Read Temperature
+    tempSensors.requestTemperatures();
+    float temperatureC = tempSensors.getTempCByIndex(0);
+    
+    // 2. Read pH Level (12-bit ADC conversion)
+    int rawAdc = analogRead(PH_PIN);
+    float voltage = rawAdc * (3.3 / 4095.0);
+    float phValue = 3.5 * voltage + 0.5; // Calibration equation
+    
+    // 3. Construct JSON Payload
+    String jsonPayload = "{\"temperature\":" + String(temperatureC, 2) + 
+                         ",\"ph\":" + String(phValue, 2) + "}";
+    
+    // 4. Send HTTP POST to Dashboard
+    HTTPClient http;
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+    
+    int httpResponseCode = http.POST(jsonPayload);
+    Serial.printf("Telemetry sent. HTTP Code: %d\n", httpResponseCode);
+    
+    http.end();
+  }
+  
+  delay(2000); // 2-second telemetry interval
+}</code></pre>
+      </div>
+
+      <!-- TAB 3: LOGS -->
+      <div id="tab-content-logs" class="pt-5 hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-sm font-bold text-slate-800">Incoming Telemetry Log History</h4>
+          <button onclick="clearLogs()" class="text-xs text-rose-600 hover:underline font-semibold">Clear Logs</button>
+        </div>
+        <div class="bg-slate-900 text-slate-200 font-mono text-xs p-3 rounded-xl h-48 overflow-y-auto space-y-1" id="log-container">
+          <div class="text-slate-500">[SYSTEM] Initialization completed. Telemetry stream ready.</div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- JAVASCRIPT APP LOGIC & CHART INITIALIZATION -->
+  <script>
+    // App Global State
+    let telemetryStreamActive = true;
+    let audioAlertEnabled = true;
+    let currentTemp = 6.2;
+    let currentPh = 6.58;
+
+    // Data History Arrays (12 samples)
+    const timeLabels = ['12h ago', '10h ago', '8h ago', '6h ago', '4h ago', '2h ago', '1h ago', '45m ago', '30m ago', '15m ago', '5m ago', 'Now'];
+    let tempHistory = [6.9, 6.7, 6.5, 6.4, 6.3, 6.2, 6.1, 6.2, 6.3, 6.1, 6.2, 6.2];
+    let phHistory   = [6.68, 6.65, 6.64, 6.62, 6.60, 6.59, 6.58, 6.59, 6.58, 6.57, 6.58, 6.58];
+
+    let chartTempInstance = null;
+    let chartPhInstance = null;
+    let streamInterval = null;
+
+    // DOM Ready Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      initCharts();
+      startTelemetryStream();
+      evaluateQualityState();
+      addLogEntry("System initialized. Sensor telemetry baseline established.");
+    });
+
+    // Real-Time Clock
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      document.getElementById('clock-text').innerText = `${dateStr} | ${timeStr}`;
+    }
+
+    // Chart.js Initialization
+    function initCharts() {
+      // Temperature Chart Setup
+      const ctxTemp = document.getElementById('chart-temp').getContext('2d');
+      const gradientTemp = ctxTemp.createLinearGradient(0, 0, 0, 200);
+      gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
+      gradientTemp.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+      chartTempInstance = new Chart(ctxTemp, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'Temperature (°C)',
+            data: tempHistory,
+            borderColor: '#ef4444',
+            backgroundColor: gradientTemp,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ef4444'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 2, max: 15, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // pH Chart Setup
+      const ctxPh = document.getElementById('chart-ph').getContext('2d');
+      const gradientPh = ctxPh.createLinearGradient(0, 0, 0, 200);
+      gradientPh.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+      gradientPh.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+      chartPhInstance = new Chart(ctxPh, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'pH Level',
+            data: phHistory,
+            borderColor: '#10b981',
+            backgroundColor: gradientPh,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#10b981'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 4.5, max: 7.5, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Live Sensor Stream Simulator
+    function startTelemetryStream() {
+      if (streamInterval) clearInterval(streamInterval);
+      streamInterval = setInterval(() => {
+        if (!telemetryStreamActive) return;
+
+        // Subtle realistic sensor jitter
+        const tempNoise = (Math.random() - 0.5) * 0.15;
+        const phNoise   = (Math.random() - 0.5) * 0.04;
+
+        currentTemp = Math.min(18, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
+        currentPh   = Math.min(7.8, Math.max(4.2, parseFloat((currentPh + phNoise).toFixed(2))));
+
+        // Sync Sliders
+        document.getElementById('input-slider-temp').value = currentTemp;
+        document.getElementById('input-slider-ph').value = currentPh;
+
+        updateDashboardValues();
+      }, 2000);
+    }
+
+    function toggleTelemetryStream() {
+      telemetryStreamActive = !telemetryStreamActive;
+      const btn = document.getElementById('btn-stream-toggle');
+      const txt = document.getElementById('text-stream-btn');
+      if (telemetryStreamActive) {
+        btn.className = "p-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-center transition flex flex-col items-center justify-center";
+        txt.innerText = "Stream: ON";
+        addLogEntry("[SIMULATOR] Live data streaming resumed.");
+      } else {
+        btn.className = "p-2.5 rounded-lg bg-slate-600 hover:bg-slate-700 text-white font-bold text-center transition flex flex-col items-center justify-center";
+        txt.innerText = "Stream: PAUSED";
+        addLogEntry("[SIMULATOR] Live data streaming paused.");
+      }
+    }
+
+    // Manual Slider Input Handlers
+    function onManualTempChange(val) {
+      currentTemp = parseFloat(parseFloat(val).toFixed(1));
+      updateDashboardValues();
+    }
+
+    function onManualPhChange(val) {
+      currentPh = parseFloat(parseFloat(val).toFixed(2));
+      updateDashboardValues();
+    }
+
+    // Scenario Presets
+    function setScenario(scen) {
+      if (scen === 'normal') {
+        currentTemp = 5.5;
+        currentPh = 6.65;
+        addLogEntry("[SCENARIO] Switched to Fresh Milk baseline.");
+      } else if (scen === 'warning') {
+        currentTemp = 8.5;
+        currentPh = 6.32;
+        addLogEntry("[WARNING SCENARIO] High Temp & dropping pH applied.");
+      } else if (scen === 'critical_ph') {
+        currentTemp = 12.4;
+        currentPh = 5.40;
+        addLogEntry("[CRITICAL SCENARIO] Severe spoilage parameters injected!");
+      }
+      document.getElementById('input-slider-temp').value = currentTemp;
+      document.getElementById('input-slider-ph').value = currentPh;
+      updateDashboardValues();
+    }
+
+    // Core Dashboard UI Updater
+    function updateDashboardValues() {
+      // 1. Update Numerical Values & Sliders text
+      document.getElementById('val-temp').innerText = currentTemp.toFixed(1);
+      document.getElementById('slider-temp-disp').innerText = `${currentTemp.toFixed(1)} °C`;
+      document.getElementById('val-ph').innerText = currentPh.toFixed(2);
+      document.getElementById('slider-ph-disp').innerText = currentPh.toFixed(2);
+
+      // 2. Progress Bars
+      const tempPct = Math.min(100, Math.max(0, (currentTemp / 15) * 100));
+      document.getElementById('temp-bar').style.width = `${tempPct}%`;
+      const phPct = Math.min(100, Math.max(0, ((currentPh - 4.0) / 4.0) * 100));
+      document.getElementById('ph-bar').style.width = `${phPct}%`;
+
+      // 3. Update Chart Datasets
+      tempHistory.shift();
+      tempHistory.push(currentTemp);
+      chartTempInstance.data.datasets[0].data = tempHistory;
+      chartTempInstance.update('none');
+
+      phHistory.shift();
+      phHistory.push(currentPh);
+      chartPhInstance.data.datasets[0].data = phHistory;
+      chartPhInstance.update('none');
+
+      // Averages
+      const tempAvg = (tempHistory.reduce((a,b)=>a+b,0)/12).toFixed(1);
+      const phAvg = (phHistory.reduce((a,b)=>a+b,0)/12).toFixed(2);
+      document.getElementById('temp-avg').innerText = `${tempAvg}°C`;
+      document.getElementById('ph-avg').innerText = phAvg;
+
+      // 4. Evaluate Thresholds & Update Hero Card & Alert Table
+      evaluateQualityState();
+    }
+
+    // Threshold Algorithm & State Switcher
+    function evaluateQualityState() {
+      const heroCard = document.getElementById('hero-status-card');
+      const heroTitle = document.getElementById('hero-status-title');
+      const heroSubtext = document.getElementById('hero-status-subtext');
+      const heroIconContainer = document.getElementById('hero-icon-container');
+      const tempPill = document.getElementById('temp-status-pill');
+      const phPill = document.getElementById('ph-status-pill');
+
+      const rowSafe = document.getElementById('row-safe');
+      const rowWarning = document.getElementById('row-warning');
+      const rowCritical = document.getElementById('row-critical');
+
+      // Reset Table Rows
+      rowSafe.className = "hover:bg-slate-50 transition-colors";
+      rowWarning.className = "hover:bg-slate-50 transition-colors";
+      rowCritical.className = "hover:bg-slate-50 transition-colors";
+
+      let state = 'SAFE'; // SAFE | EARLY WARNING | CRITICAL
+
+      // Condition Checks
+      if (currentPh < 6.0 || currentTemp > 10.0) {
+        state = 'CRITICAL';
+      } else if (currentPh < 6.4 || currentTemp > 7.8) {
+        state = 'WARNING';
+      }
+
+      if (state === 'SAFE') {
+        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-white relative overflow-hidden transition-all duration-300";
+        heroTitle.innerText = "SAFE";
+        heroTitle.className = "text-2xl font-black text-emerald-700 font-display";
+        heroSubtext.innerText = "Milk parameters within expected safe range.";
+        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0";
+        heroIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8"></i>';
+
+        tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1";
+        tempPill.innerHTML = '<i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL';
+        phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1";
+        phPill.innerHTML = '<i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL';
+
+        rowSafe.className = "bg-emerald-50/80 font-bold border-l-4 border-l-emerald-500";
+
+      } else if (state === 'WARNING') {
+        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white relative overflow-hidden transition-all duration-300 pulse-amber";
+        heroTitle.innerText = "EARLY WARNING";
+        heroTitle.className = "text-2xl font-black text-amber-800 font-display";
+        heroSubtext.innerText = "Abnormal downward pH trend or elevated temperature.";
+        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0";
+        heroIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8"></i>';
+
+        if (currentTemp > 7.8) {
+          tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1";
+          tempPill.innerHTML = '<i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600"></i> HIGH TEMP';
+        }
+        if (currentPh < 6.4) {
+          phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1";
+          phPill.innerHTML = '<i data-lucide="trending-down" class="w-3 h-3 text-amber-600"></i> DROPPING';
+        }
+
+        rowWarning.className = "bg-amber-50/80 font-bold border-l-4 border-l-amber-500";
+        triggerAudioBeep(600, 150);
+
+      } else if (state === 'CRITICAL') {
+        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-red-400 bg-gradient-to-br from-red-50 to-white relative overflow-hidden transition-all duration-300";
+        heroTitle.innerText = "CRITICAL";
+        heroTitle.className = "text-2xl font-black text-red-700 font-display";
+        heroSubtext.innerText = "Threshold crossed! High risk of bacterial curdling.";
+        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/30 shrink-0 animate-pulse";
+        heroIconContainer.innerHTML = '<i data-lucide="siren" class="w-8 h-8"></i>';
+
+        tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-900 border border-red-300 flex items-center gap-1";
+        tempPill.innerHTML = '<i data-lucide="siren" class="w-3 h-3 text-red-600"></i> EXCURSION';
+        phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-900 border border-red-300 flex items-center gap-1";
+        phPill.innerHTML = '<i data-lucide="alert-octagon" class="w-3 h-3 text-red-600"></i> CRITICAL ACIDITY';
+
+        rowCritical.className = "bg-red-50/80 font-bold border-l-4 border-l-red-500";
+        triggerAudioBeep(850, 350);
+        addLogEntry(`[ALERT] CRITICAL SPOILAGE DETECTED! Temp: ${currentTemp}°C, pH: ${currentPh}.`);
+      }
+
+      lucide.createIcons();
+    }
+
+    // Audio Alert Synthesizer (Web Audio API)
+    function toggleAudioAlert() {
+      audioAlertEnabled = !audioAlertEnabled;
+      const btn = document.getElementById('text-audio');
+      const icon = document.getElementById('icon-audio');
+      if (audioAlertEnabled) {
+        btn.innerText = "Sound: ON";
+        icon.className = "w-4 h-4 text-emerald-600";
+      } else {
+        btn.innerText = "Sound: OFF";
+        icon.className = "w-4 h-4 text-slate-400";
+      }
+    }
+
+    function triggerAudioBeep(freq = 700, duration = 200) {
+      if (!audioAlertEnabled) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + (duration / 1000));
+      } catch(e){}
+    }
+
+    // ESP32 Control Hub Tab Switcher
+    function switchEspTab(tabName) {
+      document.getElementById('tab-content-sim').classList.add('hidden');
+      document.getElementById('tab-content-code').classList.add('hidden');
+      document.getElementById('tab-content-logs').classList.add('hidden');
+
+      document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
+      document.getElementById('tab-btn-code').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
+      document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
+
+      if (tabName === 'sim') {
+        document.getElementById('tab-content-sim').classList.remove('hidden');
+        document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
+      } else if (tabName === 'code') {
+        document.getElementById('tab-content-code').classList.remove('hidden');
+        document.getElementById('tab-btn-code').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
+      } else if (tabName === 'logs') {
+        document.getElementById('tab-content-logs').classList.remove('hidden');
+        document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
+      }
+    }
+
+    // Copy C++ Code Snippet
+    function copyEsp32Code() {
+      const codeText = document.getElementById('esp32-code-snippet').innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        alert("ESP32 Arduino C++ code copied to clipboard!");
+      });
+    }
+
+    // Telemetry Event Log Helper
+    function addLogEntry(msg) {
+      const logContainer = document.getElementById('log-container');
+      const timeStr = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="text-slate-500">[${timeStr}]</span> <span class="text-sky-300">${msg}</span>`;
+      logContainer.appendChild(div);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('log-container').innerHTML = '<div class="text-slate-500">[SYSTEM] Log cleared. Monitoring active.</div>';
+    }
+
+    // Scroll helper
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Export CSV Report Functionality
+    function exportDataCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,Time,Temperature_C,pH_Acidity,Quality_Status\n";
+      for (let i = 0; i < timeLabels.length; i++) {
+        const status = (phHistory[i] < 6.4 || tempHistory[i] > 7.8) ? "WARNING" : "SAFE";
+        csvContent += `${timeLabels[i]},${tempHistory[i]},${phHistory[i]},${status}\n`;
+      }
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `SIH_SmartMilk_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+
+</body>
+</html>
