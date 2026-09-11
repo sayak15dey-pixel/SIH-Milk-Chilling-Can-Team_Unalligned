@@ -8,27 +8,11 @@
   <!-- Google Fonts & Tailwind CSS CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Outfit', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
 
   <style>
     body {
@@ -37,991 +21,395 @@
       color: #1e293b;
     }
 
-    .glass-card {
+    .card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
       border-radius: 1rem;
-      transition: all 0.25s ease-in-out;
-    }
-
-    .glass-card:hover {
-      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
-    }
-
-    .pulse-green {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: pulse-green 2s infinite;
-    }
-
-    @keyframes pulse-green {
-      0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      }
-      70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-      }
-      100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-      }
-    }
-
-    .pulse-amber {
-      animation: pulse-amber 1.5s infinite;
-    }
-    @keyframes pulse-amber {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 pb-12">
 
-  <!-- TOP HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      
-      <!-- Logo & Title Section -->
-      <div class="flex items-center space-x-3.5">
-        <div class="bg-gradient-to-tr from-sky-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-sky-500/20">
+  <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm">
           <i data-lucide="milk" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-display flex items-center gap-2">
-            SMART MILK CAN
-            <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-green"></span> LIVE STATUS
-            </span>
-          </h1>
-          <p class="text-xs text-slate-500">Real-time Quality & Telemetry Dashboard</p>
+          <h1 class="text-xl font-extrabold text-slate-900">Smart Milk Can Dashboard</h1>
+          <p class="text-xs text-slate-500 font-medium">Real-Time Milk Quality & Temperature Monitoring</p>
         </div>
       </div>
 
-      <!-- Live Connectivity & Clock -->
-      <div class="flex items-center gap-4 text-sm">
-        <div class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg text-slate-600 font-medium">
-          <i data-lucide="wifi" class="w-4 h-4 text-emerald-600"></i>
-          <span>Connected</span>
-        </div>
-        <div class="flex items-center gap-2 bg-slate-100 px-3.5 py-1.5 rounded-lg text-slate-700 font-semibold font-mono shadow-inner" id="live-clock">
-          <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
-          <span id="clock-text">--:--:--</span>
-        </div>
-        <button id="btn-export" onclick="exportDataCSV()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs transition shadow-sm">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Report
-        </button>
+      <!-- Live Dot & Clock -->
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Sensors Connected
+        </span>
+        <span class="text-xs font-mono bg-slate-100 px-3 py-1.5 rounded-lg text-slate-600 font-semibold" id="clock-text">--:--:--</span>
       </div>
-
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
 
-    <!-- SUB HEADER BANNER -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900 font-display">Software Implementation & Telemetry Monitor</h2>
-        <p class="text-xs text-slate-500">Real-time IoT milk quality monitoring system with predictive degradation alert matrix.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button onclick="toggleAudioAlert()" id="btn-audio-toggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200">
-          <i data-lucide="volume-2" id="icon-audio" class="w-4 h-4 text-slate-600"></i>
-          <span id="text-audio">Sound: ON</span>
-        </button>
-        <button onclick="scrollToSection('esp-control-hub')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">
-          <i data-lucide="sliders" class="w-4 h-4"></i>
-          ESP32 Live Controller Hub
-        </button>
-      </div>
-    </div>
+    <!-- 1. LIVE SENSOR METRICS & OVERALL STATUS -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-    <!-- 1. DASHBOARD SYSTEM: LIVE METRICS & HERO QUALITY STATUS -->
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-sky-500"></span> Dashboard System
-        </h2>
-        <span class="text-xs text-slate-400">Auto-refreshing every 2 seconds</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-
-        <!-- TEMPERATURE CARD (4 Cols) -->
-        <div class="md:col-span-4 glass-card p-5 relative overflow-hidden group">
-          <div class="flex items-start justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="p-3 bg-red-50 text-red-500 rounded-xl border border-red-100 group-hover:scale-105 transition-transform">
-                <i data-lucide="thermometer" class="w-6 h-6"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Temperature</p>
-                <h3 class="text-sm font-semibold text-slate-700">Milk Temperature</h3>
-              </div>
+      <!-- TEMPERATURE CARD -->
+      <div class="card p-5 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="p-2 rounded-lg bg-rose-50 text-rose-500">
+              <i data-lucide="thermometer" class="w-5 h-5"></i>
             </div>
-            <span id="temp-status-pill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-              <i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL
-            </span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Temperature</span>
+          </div>
+          <span id="temp-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            NORMAL
+          </span>
+        </div>
+
+        <div class="my-4">
+          <div class="flex items-baseline space-x-1">
+            <span id="val-temp" class="text-4xl font-extrabold text-slate-900">6.2</span>
+            <span class="text-lg font-bold text-slate-500">°C</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Safe Temperature: <strong>Below 8.0 °C</strong></p>
+        </div>
+
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="temp-bar" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 15.5%;"></div>
+        </div>
+      </div>
+
+      <!-- pH LEVEL CARD -->
+      <div class="card p-5 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="p-2 rounded-lg bg-blue-50 text-blue-600">
+              <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">pH Acidity</span>
+          </div>
+          <span id="ph-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            NORMAL
+          </span>
+        </div>
+
+        <div class="my-4">
+          <div class="flex items-baseline space-x-1">
+            <span id="val-ph" class="text-4xl font-extrabold text-slate-900">6.58</span>
+            <span class="text-xs text-slate-400 font-bold">pH</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Ideal Range: <strong>6.40 to 6.80 pH</strong></p>
+        </div>
+
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="ph-bar" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 64.5%;"></div>
+        </div>
+      </div>
+
+      <!-- MILK QUALITY HERO CARD -->
+      <div id="status-card" class="card p-5 flex flex-col justify-between border-2 border-emerald-300 bg-emerald-50/60">
+        <div>
+          <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Milk Quality Status</span>
+          <div class="flex items-center space-x-3.5 mt-3">
+            <div id="status-icon-box" class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <i data-lucide="check-circle" id="status-icon" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <h3 id="status-title" class="text-2xl font-black text-emerald-800">SAFE</h3>
+              <p id="status-desc" class="text-xs text-slate-600 font-medium mt-0.5">Milk parameters are good and safe.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> Good Quality Milk
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- 2. ALERT LEVELS TABLE & HOW IT WORKS FLOWCHART -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- Alert Table -->
+      <div class="card p-5">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <i data-lucide="list-checks" class="w-4 h-4 text-blue-600"></i> Milk Quality Alert Levels
+        </h3>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-bold border-b">
+                <th class="p-2.5">Status</th>
+                <th class="p-2.5">Condition</th>
+                <th class="p-2.5">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr id="row-safe" class="bg-emerald-50/80 font-semibold">
+                <td class="p-2.5">
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">SAFE</span>
+                </td>
+                <td class="p-2.5 text-slate-700">Normal pH & Temperature</td>
+                <td class="p-2.5 text-emerald-700 font-bold">Normal Monitoring</td>
+              </tr>
+
+              <tr id="row-warning">
+                <td class="p-2.5">
+                  <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">EARLY WARNING</span>
+                </td>
+                <td class="p-2.5 text-slate-700">pH dropping below 6.40</td>
+                <td class="p-2.5 text-amber-800 font-bold">Check Temperature & Batch</td>
+              </tr>
+
+              <tr id="row-critical">
+                <td class="p-2.5">
+                  <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 font-bold">CRITICAL</span>
+                </td>
+                <td class="p-2.5 text-slate-700">High Temp (&gt;10°C) or pH &lt; 6.00</td>
+                <td class="p-2.5 text-rose-700 font-bold">Immediate Inspection</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- System Flowchart -->
+      <div class="card p-5 flex flex-col justify-between">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <i data-lucide="git-commit" class="w-4 h-4 text-indigo-600"></i> How The System Works
+        </h3>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded bg-blue-500 text-white flex items-center justify-center font-bold text-xs">1</span>
+              <span class="font-semibold text-slate-800">pH & Temperature Sensor</span>
+            </div>
+            <span class="text-slate-500 text-[11px]">Reads Milk</span>
           </div>
 
-          <div class="mt-4 flex items-baseline justify-between">
-            <div class="flex items-baseline space-x-1">
-              <span id="val-temp" class="text-4xl font-extrabold text-slate-900 font-display">6.2</span>
-              <span class="text-lg font-bold text-slate-500">°C</span>
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded bg-indigo-500 text-white flex items-center justify-center font-bold text-xs">2</span>
+              <span class="font-semibold text-slate-800">ESP32 Microcontroller</span>
             </div>
-            <div class="text-right text-xs text-slate-500 font-medium">
-              <div>Target: &lt; 8.0 °C</div>
-              <div class="text-emerald-600 font-semibold" id="temp-range-text">Safe Chilling Zone</div>
-            </div>
+            <span class="text-slate-500 text-[11px]">Sends Data</span>
           </div>
 
-          <!-- Progress Bar -->
-          <div class="mt-4 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <div id="temp-bar" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 15.5%;"></div>
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-xs">3</span>
+              <span class="font-semibold text-slate-800">Quality Analysis</span>
+            </div>
+            <span class="text-slate-500 text-[11px]">Checks Limits</span>
           </div>
-          <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <div class="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium">
+              <div class="font-bold text-xs">NORMAL</div>
+              <div class="text-[10px]">Milk is Safe</div>
+            </div>
+            <div class="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 font-medium">
+              <div class="font-bold text-xs">ABNORMAL</div>
+              <div class="text-[10px]">Alert Milkman's Phone</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- 3. SIMPLE DEMO CONTROLS (TEST SLIDERS) -->
+    <section class="card p-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+        <i data-lucide="sliders" class="w-4 h-4 text-blue-600"></i> Test Live Readings (Interactive Demo)
+      </h3>
+      <p class="text-xs text-slate-500 mb-4">Drag the sliders to change values and see how the dashboard updates live!</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Temperature Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs font-bold">
+            <span>Milk Temperature:</span>
+            <span id="slider-temp-text" class="font-mono text-rose-600">6.2 °C</span>
+          </div>
+          <input type="range" id="slider-temp" min="0" max="40" step="0.1" value="6.2" oninput="onTempSlider(this.value)"
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-500">
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
             <span>0°C</span>
-            <span>Optimal: 4°C - 6°C</span>
+            <span>8°C (Safe Limit)</span>
             <span>40°C</span>
           </div>
         </div>
 
-        <!-- pH LEVEL CARD (4 Cols) -->
-        <div class="md:col-span-4 glass-card p-5 relative overflow-hidden group">
-          <div class="flex items-start justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="p-3 bg-sky-50 text-sky-600 rounded-xl border border-sky-100 group-hover:scale-105 transition-transform">
-                <i data-lucide="flask-conical" class="w-6 h-6"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">pH</p>
-                <h3 class="text-sm font-semibold text-slate-700">Milk Acidity Level</h3>
-              </div>
-            </div>
-            <span id="ph-status-pill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-              <i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL
-            </span>
+        <!-- pH Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs font-bold">
+            <span>pH Acidity Level:</span>
+            <span id="slider-ph-text" class="font-mono text-blue-600">6.58</span>
           </div>
-
-          <div class="mt-4 flex items-baseline justify-between">
-            <div class="flex items-baseline space-x-1">
-              <span id="val-ph" class="text-4xl font-extrabold text-slate-900 font-display">6.58</span>
-              <span class="text-xs text-slate-400 font-normal">pH</span>
-            </div>
-            <div class="text-right text-xs text-slate-500 font-medium">
-              <div>Ideal: 6.40 - 6.80</div>
-              <div class="text-emerald-600 font-semibold" id="ph-range-text">Fresh Raw Milk</div>
-            </div>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="mt-4 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <div id="ph-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 64.5%;"></div>
-          </div>
-          <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+          <input type="range" id="slider-ph" min="4.0" max="8.0" step="0.01" value="6.58" oninput="onPhSlider(this.value)"
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
             <span>4.0 (Sour)</span>
-            <span>Ideal: 6.6</span>
+            <span>6.6 (Ideal)</span>
             <span>8.0 (Alkaline)</span>
           </div>
         </div>
 
-        <!-- MILK QUALITY STATUS HERO BANNER (4 Cols) -->
-        <div id="hero-status-card" class="md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-white relative overflow-hidden transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Overall Quality Check</span>
-            <span id="hero-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-600 text-white">LIVE MONITOR</span>
-          </div>
-
-          <div class="my-3 flex items-center space-x-4">
-            <div id="hero-icon-container" class="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
-              <i data-lucide="check-circle" id="hero-icon" class="w-8 h-8"></i>
-            </div>
-            <div>
-              <p class="text-xs text-slate-500 font-semibold">MILK QUALITY STATUS</p>
-              <h3 id="hero-status-title" class="text-2xl font-black text-emerald-700 font-display">SAFE</h3>
-              <p id="hero-status-subtext" class="text-xs font-medium text-slate-600 mt-0.5">Milk parameters within expected range.</p>
-            </div>
-          </div>
-
-          <div class="pt-2 border-t border-emerald-100/80 flex items-center justify-between text-xs text-slate-500">
-            <span>Safety Threshold: <strong class="text-slate-700">100% Compliant</strong></span>
-            <span class="flex items-center gap-1 text-emerald-700 font-semibold">
-              <i data-lucide="shield-check" class="w-4 h-4"></i> Grade A Safe
-            </span>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- 2. GRAPHICAL DATA SECTION (CHARTS) -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-      <!-- TEMPERATURE HISTORY CHART -->
-      <div class="glass-card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-2">
-            <div class="p-1.5 bg-red-100 text-red-600 rounded-lg">
-              <i data-lucide="trending-down" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-800 font-display">Temperature History (°C)</h3>
-              <p class="text-xs text-slate-400">Recorded temperature trend over time (0°C to 40°C)</p>
-            </div>
-          </div>
-          <span class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 border">Last 12 Hours</span>
-        </div>
-
-        <div class="h-60 w-full relative">
-          <canvas id="chart-temp"></canvas>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Chilling Line (&lt; 8°C)</span>
-          <span class="font-mono text-slate-600">Avg: <strong id="temp-avg">6.1°C</strong></span>
-        </div>
       </div>
 
-      <!-- pH HISTORY CHART -->
-      <div class="glass-card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-2">
-            <div class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg">
-              <i data-lucide="activity" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-800 font-display">pH History</h3>
-              <p class="text-xs text-slate-400">Acidity curve stability monitoring</p>
-            </div>
-          </div>
-          <span class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 border">Last 12 Hours</span>
-        </div>
-
-        <div class="h-60 w-full relative">
-          <canvas id="chart-ph"></canvas>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Safe Zone (6.4 - 6.8 pH)</span>
-          <span class="font-mono text-slate-600">Avg: <strong id="ph-avg">6.59</strong></span>
-        </div>
+      <!-- Quick Buttons -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
+        <span class="font-bold text-slate-600">Quick Test Scenarios:</span>
+        <button onclick="applyPreset(5.5, 6.65)" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+          🟢 Test Good Milk (SAFE)
+        </button>
+        <button onclick="applyPreset(8.5, 6.32)" class="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold border border-amber-200">
+          🟡 Test Warning (8.5°C / 6.32 pH)
+        </button>
+        <button onclick="applyPreset(38.5, 5.40)" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold border border-rose-200">
+          🔴 Test Critical (38.5°C / 5.40 pH)
+        </button>
       </div>
-
-    </section>
-
-
-    <!-- 3. ALERT LEVELS & INTELLIGENT ALERT FLOWCHART (2 COLS) -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-      <!-- ALERT LEVELS TABLE (6 Cols) -->
-      <div class="lg:col-span-6 glass-card p-5 flex flex-col justify-between">
-        <div>
-          <!-- Header Banner -->
-          <div class="bg-slate-900 text-white p-4 rounded-xl mb-4 shadow-sm relative overflow-hidden">
-            <div class="flex items-center space-x-3">
-              <div class="p-2 bg-sky-500 text-white rounded-lg">
-                <i data-lucide="droplet" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-extrabold tracking-wide uppercase font-display">MILK QUALITY ALERT SYSTEM</h3>
-                <p class="text-xs text-sky-200 font-medium">Real-time Monitoring &nbsp;|&nbsp; Early Detection &nbsp;|&nbsp; Safer Milk</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Alert Matrix Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
-                  <th class="p-3 rounded-l-lg">Status</th>
-                  <th class="p-3">Condition</th>
-                  <th class="p-3 rounded-r-lg">Action</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 font-medium">
-                
-                <!-- SAFE ROW -->
-                <tr id="row-safe" class="hover:bg-slate-50 transition-colors">
-                  <td class="p-3">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> SAFE
-                    </span>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5">
-                      <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-600"></i>
-                      <span>Parameters within expected range.</span>
-                    </div>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5 font-semibold text-emerald-700">
-                      <i data-lucide="shield-check" class="w-4 h-4"></i>
-                      <span>Normal monitoring.</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- EARLY WARNING ROW -->
-                <tr id="row-warning" class="hover:bg-slate-50 transition-colors">
-                  <td class="p-3">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i> EARLY WARNING
-                    </span>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5">
-                      <i data-lucide="trending-down" class="w-4 h-4 text-amber-600"></i>
-                      <span>Abnormal downward pH trend.</span>
-                    </div>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5 font-semibold text-amber-800">
-                      <i data-lucide="search" class="w-4 h-4 text-amber-600"></i>
-                      <span>Check temperature and batch.</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- CRITICAL ROW -->
-                <tr id="row-critical" class="hover:bg-slate-50 transition-colors">
-                  <td class="p-3">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-900 border border-red-300">
-                      <i data-lucide="siren" class="w-3.5 h-3.5 text-red-600"></i> CRITICAL
-                    </span>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5">
-                      <i data-lucide="thermometer-snowflake" class="w-4 h-4 text-red-600"></i>
-                      <span>Validated pH threshold crossed / prolonged temp excursion.</span>
-                    </div>
-                  </td>
-                  <td class="p-3 text-slate-700">
-                    <div class="flex items-center gap-1.5 font-semibold text-red-700">
-                      <i data-lucide="phone-call" class="w-4 h-4 text-red-600"></i>
-                      <span>Immediate inspection recommended.</span>
-                    </div>
-                  </td>
-                </tr>
-
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
-          <span>Threshold Algorithm: Dynamic Rolling Average</span>
-          <span class="text-sky-600 font-medium cursor-pointer hover:underline" onclick="scrollToSection('esp-control-hub')">Configure Thresholds &rarr;</span>
-        </div>
-      </div>
-
-
-      <!-- INTELLIGENT ALERT SYSTEM FLOWCHART (6 Cols) -->
-      <div class="lg:col-span-6 glass-card p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-base font-bold text-slate-900 font-display flex items-center gap-2">
-            <i data-lucide="git-fork" class="w-5 h-5 text-indigo-600"></i> INTELLIGENT ALERT SYSTEM
-          </h3>
-          <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">Live Hardware Flow</span>
-        </div>
-        <p class="text-xs text-slate-500 mb-4">Real-time signal path from physical sensors to cloud analysis & emergency notification dispatch.</p>
-
-        <!-- FLOW DIAGRAM CARDS -->
-        <div class="space-y-3 relative text-xs">
-
-          <!-- Step 1: pH Sensor -->
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold">1</div>
-              <div>
-                <h4 class="font-bold text-slate-800">pH & Temperature Sensor</h4>
-                <p class="text-slate-500 text-[11px]">Measures physical milk parameters in real-time</p>
-              </div>
-            </div>
-            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
-          </div>
-
-          <div class="flex justify-center text-slate-400 -my-1">
-            <i data-lucide="arrow-down" class="w-4 h-4 animate-bounce"></i>
-          </div>
-
-          <!-- Step 2: ESP32 -->
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">2</div>
-              <div>
-                <h4 class="font-bold text-slate-800">ESP32 Microcontroller</h4>
-                <p class="text-slate-500 text-[11px]">Reads analog sensor values and applies kalman filter</p>
-              </div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-200 text-slate-700 font-mono">ADC 12-bit</span>
-          </div>
-
-          <div class="flex justify-center text-slate-400 -my-1">
-            <i data-lucide="arrow-down" class="w-4 h-4"></i>
-          </div>
-
-          <!-- Step 3: Cloud & Analyse -->
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold">3</div>
-              <div>
-                <h4 class="font-bold text-slate-800">Send Data to Cloud & Analyse Trend</h4>
-                <p class="text-slate-500 text-[11px]">Uploads real-time data & checks threshold algorithm</p>
-              </div>
-            </div>
-            <i data-lucide="cloud-lightning" class="w-4 h-4 text-sky-500"></i>
-          </div>
-
-          <!-- Dual Decision Branch -->
-          <div class="grid grid-cols-2 gap-3 pt-1">
-
-            <!-- Normal Branch -->
-            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col justify-between">
-              <div>
-                <span class="text-[10px] font-bold uppercase text-emerald-700 tracking-wider">NORMAL PATH</span>
-                <h5 class="font-bold text-emerald-900 mt-1">SAFE STATUS</h5>
-                <p class="text-[11px] text-emerald-700 mt-0.5">pH within expected range. Milk quality is good.</p>
-              </div>
-              <div class="mt-3 flex items-center gap-1 text-emerald-800 font-semibold">
-                <i data-lucide="check" class="w-4 h-4"></i> Normal Monitoring
-              </div>
-            </div>
-
-            <!-- Abnormal Branch -->
-            <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex flex-col justify-between">
-              <div>
-                <span class="text-[10px] font-bold uppercase text-rose-700 tracking-wider">ABNORMAL PATH</span>
-                <h5 class="font-bold text-rose-900 mt-1">WARNING / ALERT</h5>
-                <p class="text-[11px] text-rose-700 mt-0.5">Milk quality deteriorating. Trigger notification.</p>
-              </div>
-              <div class="mt-3 p-2 bg-white rounded-lg border border-rose-200 flex items-center justify-between text-rose-800 font-bold">
-                <span class="flex items-center gap-1.5">
-                  <i data-lucide="smartphone" class="w-4 h-4 text-rose-600"></i> Milkman's Phone
-                </span>
-                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="mt-4 p-3 bg-gradient-to-r from-sky-600 to-indigo-700 text-white rounded-xl flex items-center justify-between text-xs shadow-md">
-          <div class="font-extrabold tracking-wide uppercase">REAL-TIME MONITORING. SAFER MILK. HEALTHIER TOMORROW.</div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- 4. ESP32 LIVE CONTROLLER & TELEMETRY SIMULATOR -->
-    <section id="esp-control-hub" class="glass-card p-6 border-2 border-indigo-100">
-      
-      <!-- Section Title -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="p-2 bg-indigo-600 text-white rounded-xl">
-              <i data-lucide="cpu" class="w-5 h-5"></i>
-            </span>
-            <div>
-              <h3 class="text-lg font-bold text-slate-900 font-display">ESP32 Hardware Control & Data Injection Hub</h3>
-              <p class="text-xs text-slate-500">Inject test telemetry values up to 40°C to simulate high-temperature excursions and alerts.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
-          <button id="tab-btn-sim" onclick="switchEspTab('sim')" class="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold">
-            Live Stream & Manual Injection
-          </button>
-          <button id="tab-btn-logs" onclick="switchEspTab('logs')" class="px-3.5 py-1.5 rounded-lg hover:text-slate-900">
-            Telemetry Logs
-          </button>
-        </div>
-      </div>
-
-      <!-- TAB 1: SIMULATOR & MANUAL INJECTION -->
-      <div id="tab-content-sim" class="pt-5 space-y-6">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <!-- Left Column: Manual Parameter Sliders -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-            <div class="flex items-center justify-between">
-              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i> Manual Sensor Injection (0°C - 40°C)
-              </h4>
-              <span class="text-[11px] text-slate-500">Drag sliders to test instant alerts</span>
-            </div>
-
-            <!-- Temperature Slider -->
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <label for="input-slider-temp" class="font-bold text-slate-700">Temperature (°C):</label>
-                <span id="slider-temp-disp" class="font-mono font-bold text-red-600">6.2 °C</span>
-              </div>
-              <input type="range" id="input-slider-temp" min="0" max="40" step="0.1" value="6.2" oninput="onManualTempChange(this.value)"
-                     class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
-              <div class="flex justify-between text-[10px] text-slate-400">
-                <span>0°C (Cold)</span>
-                <span>6°C (Normal)</span>
-                <span>20°C (Warm)</span>
-                <span>40°C (Critical Risk)</span>
-              </div>
-            </div>
-
-            <!-- pH Slider -->
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <label for="input-slider-ph" class="font-bold text-slate-700">pH Acidity Level:</label>
-                <span id="slider-ph-disp" class="font-mono font-bold text-sky-600">6.58</span>
-              </div>
-              <input type="range" id="input-slider-ph" min="4.0" max="8.0" step="0.01" value="6.58" oninput="onManualPhChange(this.value)"
-                     class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500">
-              <div class="flex justify-between text-[10px] text-slate-400">
-                <span>4.0 (Sour Milk)</span>
-                <span>6.6 (Fresh Milk)</span>
-                <span>8.0 (Alkaline)</span>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Right Column: Quick Simulation Scenarios -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <i data-lucide="play-circle" class="w-4 h-4 text-emerald-600"></i> Preset Test Scenarios
-            </h4>
-            <p class="text-xs text-slate-500">Click a scenario button to simulate physical sensor conditions:</p>
-
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <button onclick="setScenario('normal')" class="p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-semibold text-left transition">
-                <div class="font-bold">Fresh Milk (SAFE)</div>
-                <div class="text-[10px] text-emerald-600">Temp: 5.5°C | pH: 6.65</div>
-              </button>
-
-              <button onclick="setScenario('warning')" class="p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-semibold text-left transition">
-                <div class="font-bold">Early Souring</div>
-                <div class="text-[10px] text-amber-700">Temp: 8.5°C | pH: 6.32</div>
-              </button>
-
-              <button onclick="setScenario('critical_ph')" class="p-2.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-900 font-semibold text-left transition">
-                <div class="font-bold">High Heat Spoilage</div>
-                <div class="text-[10px] text-red-700">Temp: 38.5°C | pH: 5.40</div>
-              </button>
-
-              <button onclick="toggleTelemetryStream()" id="btn-stream-toggle" class="p-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-center transition flex flex-col items-center justify-center">
-                <span id="text-stream-btn">Stream: ON</span>
-                <span class="text-[10px] opacity-80">Auto 2s update</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- TAB 2: LOGS -->
-      <div id="tab-content-logs" class="pt-5 hidden space-y-3">
-        <div class="flex items-center justify-between">
-          <h4 class="text-sm font-bold text-slate-800">Incoming Telemetry Log History</h4>
-          <button onclick="clearLogs()" class="text-xs text-rose-600 hover:underline font-semibold">Clear Logs</button>
-        </div>
-        <div class="bg-slate-900 text-slate-200 font-mono text-xs p-3 rounded-xl h-48 overflow-y-auto space-y-1" id="log-container">
-          <div class="text-slate-500">[SYSTEM] Initialization completed. Telemetry stream ready.</div>
-        </div>
-      </div>
-
     </section>
 
   </main>
 
 
-  <!-- JAVASCRIPT APP LOGIC & CHART INITIALIZATION -->
+  <!-- APP SCRIPT -->
   <script>
-    // App Global State
-    let telemetryStreamActive = true;
-    let audioAlertEnabled = true;
     let currentTemp = 6.2;
     let currentPh = 6.58;
 
-    // Data History Arrays (12 samples)
-    const timeLabels = ['12h ago', '10h ago', '8h ago', '6h ago', '4h ago', '2h ago', '1h ago', '45m ago', '30m ago', '15m ago', '5m ago', 'Now'];
-    let tempHistory = [6.9, 6.7, 6.5, 6.4, 6.3, 6.2, 6.1, 6.2, 6.3, 6.1, 6.2, 6.2];
-    let phHistory   = [6.68, 6.65, 6.64, 6.62, 6.60, 6.59, 6.58, 6.59, 6.58, 6.57, 6.58, 6.58];
-
-    let chartTempInstance = null;
-    let chartPhInstance = null;
-    let streamInterval = null;
-
-    // DOM Ready Initialization
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       updateClock();
       setInterval(updateClock, 1000);
 
-      initCharts();
-      startTelemetryStream();
-      evaluateQualityState();
-      addLogEntry("System initialized. Sensor telemetry baseline established.");
+      updateDashboard();
+
+      // Gentle sensor reading update
+      setInterval(() => {
+        const tempNoise = (Math.random() - 0.5) * 0.08;
+        const phNoise   = (Math.random() - 0.5) * 0.02;
+
+        currentTemp = Math.min(40, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
+        currentPh   = Math.min(7.8, Math.max(4.0, parseFloat((currentPh + phNoise).toFixed(2))));
+
+        document.getElementById('slider-temp').value = currentTemp;
+        document.getElementById('slider-ph').value = currentPh;
+
+        updateDashboard();
+      }, 3000);
     });
 
-    // Real-Time Clock
     function updateClock() {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-      document.getElementById('clock-text').innerText = `${dateStr} | ${timeStr}`;
+      document.getElementById('clock-text').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
-    // Chart.js Initialization
-    function initCharts() {
-      const ctxTemp = document.getElementById('chart-temp').getContext('2d');
-      const gradientTemp = ctxTemp.createLinearGradient(0, 0, 0, 200);
-      gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
-      gradientTemp.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
-
-      chartTempInstance = new Chart(ctxTemp, {
-        type: 'line',
-        data: {
-          labels: timeLabels,
-          datasets: [{
-            label: 'Temperature (°C)',
-            data: tempHistory,
-            borderColor: '#ef4444',
-            backgroundColor: gradientTemp,
-            borderWidth: 2.5,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 6,
-            pointBackgroundColor: '#ef4444'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { min: 0, max: 45, grid: { color: '#f1f5f9' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-
-      // pH Chart Setup
-      const ctxPh = document.getElementById('chart-ph').getContext('2d');
-      const gradientPh = ctxPh.createLinearGradient(0, 0, 0, 200);
-      gradientPh.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
-      gradientPh.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-      chartPhInstance = new Chart(ctxPh, {
-        type: 'line',
-        data: {
-          labels: timeLabels,
-          datasets: [{
-            label: 'pH Level',
-            data: phHistory,
-            borderColor: '#10b981',
-            backgroundColor: gradientPh,
-            borderWidth: 2.5,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 6,
-            pointBackgroundColor: '#10b981'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { min: 4.5, max: 7.5, grid: { color: '#f1f5f9' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    // Live Sensor Stream Simulator
-    function startTelemetryStream() {
-      if (streamInterval) clearInterval(streamInterval);
-      streamInterval = setInterval(() => {
-        if (!telemetryStreamActive) return;
-
-        const tempNoise = (Math.random() - 0.5) * 0.15;
-        const phNoise   = (Math.random() - 0.5) * 0.04;
-
-        currentTemp = Math.min(42, Math.max(1, parseFloat((currentTemp + tempNoise).toFixed(1))));
-        currentPh   = Math.min(7.8, Math.max(4.2, parseFloat((currentPh + phNoise).toFixed(2))));
-
-        document.getElementById('input-slider-temp').value = currentTemp;
-        document.getElementById('input-slider-ph').value = currentPh;
-
-        updateDashboardValues();
-      }, 2000);
-    }
-
-    function toggleTelemetryStream() {
-      telemetryStreamActive = !telemetryStreamActive;
-      const btn = document.getElementById('btn-stream-toggle');
-      const txt = document.getElementById('text-stream-btn');
-      if (telemetryStreamActive) {
-        btn.className = "p-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-center transition flex flex-col items-center justify-center";
-        txt.innerText = "Stream: ON";
-        addLogEntry("[SIMULATOR] Live data streaming resumed.");
-      } else {
-        btn.className = "p-2.5 rounded-lg bg-slate-600 hover:bg-slate-700 text-white font-bold text-center transition flex flex-col items-center justify-center";
-        txt.innerText = "Stream: PAUSED";
-        addLogEntry("[SIMULATOR] Live data streaming paused.");
-      }
-    }
-
-    // Manual Slider Input Handlers
-    function onManualTempChange(val) {
+    function onTempSlider(val) {
       currentTemp = parseFloat(parseFloat(val).toFixed(1));
-      updateDashboardValues();
+      updateDashboard();
     }
 
-    function onManualPhChange(val) {
+    function onPhSlider(val) {
       currentPh = parseFloat(parseFloat(val).toFixed(2));
-      updateDashboardValues();
+      updateDashboard();
     }
 
-    // Scenario Presets
-    function setScenario(scen) {
-      if (scen === 'normal') {
-        currentTemp = 5.5;
-        currentPh = 6.65;
-        addLogEntry("[SCENARIO] Switched to Fresh Milk baseline.");
-      } else if (scen === 'warning') {
-        currentTemp = 8.5;
-        currentPh = 6.32;
-        addLogEntry("[WARNING SCENARIO] High Temp & dropping pH applied.");
-      } else if (scen === 'critical_ph') {
-        currentTemp = 38.5;
-        currentPh = 5.40;
-        addLogEntry("[CRITICAL SCENARIO] High Heat Excursion (38.5°C) & Spoilage injected!");
-      }
-      document.getElementById('input-slider-temp').value = currentTemp;
-      document.getElementById('input-slider-ph').value = currentPh;
-      updateDashboardValues();
+    function applyPreset(t, p) {
+      currentTemp = t;
+      currentPh = p;
+      document.getElementById('slider-temp').value = t;
+      document.getElementById('slider-ph').value = p;
+      updateDashboard();
     }
 
-    // Core Dashboard UI Updater
-    function updateDashboardValues() {
+    function updateDashboard() {
       document.getElementById('val-temp').innerText = currentTemp.toFixed(1);
-      document.getElementById('slider-temp-disp').innerText = `${currentTemp.toFixed(1)} °C`;
+      document.getElementById('slider-temp-text').innerText = `${currentTemp.toFixed(1)} °C`;
       document.getElementById('val-ph').innerText = currentPh.toFixed(2);
-      document.getElementById('slider-ph-disp').innerText = currentPh.toFixed(2);
+      document.getElementById('slider-ph-text').innerText = currentPh.toFixed(2);
 
-      const tempPct = Math.min(100, Math.max(0, (currentTemp / 40) * 100));
-      document.getElementById('temp-bar').style.width = `${tempPct}%`;
-      const phPct = Math.min(100, Math.max(0, ((currentPh - 4.0) / 4.0) * 100));
-      document.getElementById('ph-bar').style.width = `${phPct}%`;
+      document.getElementById('temp-bar').style.width = `${Math.min(100, (currentTemp / 40) * 100)}%`;
+      document.getElementById('ph-bar').style.width = `${Math.min(100, ((currentPh - 4) / 4) * 100)}%`;
 
-      tempHistory.shift();
-      tempHistory.push(currentTemp);
-      chartTempInstance.data.datasets[0].data = tempHistory;
-      chartTempInstance.update('none');
-
-      phHistory.shift();
-      phHistory.push(currentPh);
-      chartPhInstance.data.datasets[0].data = phHistory;
-      chartPhInstance.update('none');
-
-      const tempAvg = (tempHistory.reduce((a,b)=>a+b,0)/12).toFixed(1);
-      const phAvg = (phHistory.reduce((a,b)=>a+b,0)/12).toFixed(2);
-      document.getElementById('temp-avg').innerText = `${tempAvg}°C`;
-      document.getElementById('ph-avg').innerText = phAvg;
-
-      evaluateQualityState();
-    }
-
-    // Threshold Algorithm & State Switcher
-    function evaluateQualityState() {
-      const heroCard = document.getElementById('hero-status-card');
-      const heroTitle = document.getElementById('hero-status-title');
-      const heroSubtext = document.getElementById('hero-status-subtext');
-      const heroIconContainer = document.getElementById('hero-icon-container');
-      const tempPill = document.getElementById('temp-status-pill');
-      const phPill = document.getElementById('ph-status-pill');
+      const tempBadge = document.getElementById('temp-badge');
+      const phBadge = document.getElementById('ph-badge');
+      const statusCard = document.getElementById('status-card');
+      const statusTitle = document.getElementById('status-title');
+      const statusDesc = document.getElementById('status-desc');
 
       const rowSafe = document.getElementById('row-safe');
       const rowWarning = document.getElementById('row-warning');
       const rowCritical = document.getElementById('row-critical');
 
-      rowSafe.className = "hover:bg-slate-50 transition-colors";
-      rowWarning.className = "hover:bg-slate-50 transition-colors";
-      rowCritical.className = "hover:bg-slate-50 transition-colors";
+      rowSafe.className = "";
+      rowWarning.className = "";
+      rowCritical.className = "";
 
-      let state = 'SAFE';
-
+      let status = 'SAFE';
       if (currentPh < 6.0 || currentTemp > 10.0) {
-        state = 'CRITICAL';
+        status = 'CRITICAL';
       } else if (currentPh < 6.4 || currentTemp > 7.8) {
-        state = 'WARNING';
+        status = 'WARNING';
       }
 
-      if (state === 'SAFE') {
-        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-white relative overflow-hidden transition-all duration-300";
-        heroTitle.innerText = "SAFE";
-        heroTitle.className = "text-2xl font-black text-emerald-700 font-display";
-        heroSubtext.innerText = "Milk parameters within expected safe range.";
-        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0";
-        heroIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8"></i>';
+      if (status === 'SAFE') {
+        tempBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+        tempBadge.innerText = "NORMAL";
+        phBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+        phBadge.innerText = "NORMAL";
 
-        tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1";
-        tempPill.innerHTML = '<i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL';
-        phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1";
-        phPill.innerHTML = '<i data-lucide="check-circle-2" class="w-3 h-3"></i> NORMAL';
+        statusCard.className = "card p-5 flex flex-col justify-between border-2 border-emerald-300 bg-emerald-50/60";
+        statusTitle.className = "text-2xl font-black text-emerald-800";
+        statusTitle.innerText = "SAFE";
+        statusDesc.innerText = "Milk parameters are good and safe.";
 
         rowSafe.className = "bg-emerald-50/80 font-bold border-l-4 border-l-emerald-500";
+      } else if (status === 'WARNING') {
+        tempBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+        tempBadge.innerText = currentTemp > 7.8 ? "HIGH TEMP" : "NORMAL";
+        phBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+        phBadge.innerText = currentPh < 6.4 ? "DROPPING" : "NORMAL";
 
-      } else if (state === 'WARNING') {
-        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white relative overflow-hidden transition-all duration-300 pulse-amber";
-        heroTitle.innerText = "EARLY WARNING";
-        heroTitle.className = "text-2xl font-black text-amber-800 font-display";
-        heroSubtext.innerText = "Abnormal downward pH trend or elevated temperature.";
-        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0";
-        heroIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8"></i>';
-
-        if (currentTemp > 7.8) {
-          tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1";
-          tempPill.innerHTML = '<i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600"></i> HIGH TEMP';
-        }
-        if (currentPh < 6.4) {
-          phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1";
-          phPill.innerHTML = '<i data-lucide="trending-down" class="w-3 h-3 text-amber-600"></i> DROPPING';
-        }
+        statusCard.className = "card p-5 flex flex-col justify-between border-2 border-amber-300 bg-amber-50/60";
+        statusTitle.className = "text-2xl font-black text-amber-800";
+        statusTitle.innerText = "EARLY WARNING";
+        statusDesc.innerText = "Downward pH trend or high temperature.";
 
         rowWarning.className = "bg-amber-50/80 font-bold border-l-4 border-l-amber-500";
-        triggerAudioBeep(600, 150);
+      } else if (status === 'CRITICAL') {
+        tempBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800";
+        tempBadge.innerText = "HIGH EXCURSION";
+        phBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800";
+        phBadge.innerText = "SOUR RISK";
 
-      } else if (state === 'CRITICAL') {
-        heroCard.className = "md:col-span-4 glass-card p-5 flex flex-col justify-between border-2 border-red-400 bg-gradient-to-br from-red-50 to-white relative overflow-hidden transition-all duration-300";
-        heroTitle.innerText = "CRITICAL";
-        heroTitle.className = "text-2xl font-black text-red-700 font-display";
-        heroSubtext.innerText = "Threshold crossed! High risk of bacterial curdling.";
-        heroIconContainer.className = "w-14 h-14 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/30 shrink-0 animate-pulse";
-        heroIconContainer.innerHTML = '<i data-lucide="siren" class="w-8 h-8"></i>';
+        statusCard.className = "card p-5 flex flex-col justify-between border-2 border-rose-300 bg-rose-50/60";
+        statusTitle.className = "text-2xl font-black text-rose-800";
+        statusTitle.innerText = "CRITICAL";
+        statusDesc.innerText = "Milk threshold crossed! Spoilage risk.";
 
-        tempPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-900 border border-red-300 flex items-center gap-1";
-        tempPill.innerHTML = '<i data-lucide="siren" class="w-3 h-3 text-red-600"></i> EXCURSION';
-        phPill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-900 border border-red-300 flex items-center gap-1";
-        phPill.innerHTML = '<i data-lucide="alert-octagon" class="w-3 h-3 text-red-600"></i> CRITICAL ACIDITY';
-
-        rowCritical.className = "bg-red-50/80 font-bold border-l-4 border-l-red-500";
-        triggerAudioBeep(850, 350);
-        addLogEntry(`[ALERT] CRITICAL SPOILAGE DETECTED! Temp: ${currentTemp}°C, pH: ${currentPh}.`);
+        rowCritical.className = "bg-rose-50/80 font-bold border-l-4 border-l-rose-500";
       }
 
       lucide.createIcons();
-    }
-
-    // Audio Alert Synthesizer (Web Audio API)
-    function toggleAudioAlert() {
-      audioAlertEnabled = !audioAlertEnabled;
-      const btn = document.getElementById('text-audio');
-      const icon = document.getElementById('icon-audio');
-      if (audioAlertEnabled) {
-        btn.innerText = "Sound: ON";
-        icon.className = "w-4 h-4 text-emerald-600";
-      } else {
-        btn.innerText = "Sound: OFF";
-        icon.className = "w-4 h-4 text-slate-400";
-      }
-    }
-
-    function triggerAudioBeep(freq = 700, duration = 200) {
-      if (!audioAlertEnabled) return;
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + (duration / 1000));
-      } catch(e){}
-    }
-
-    // ESP32 Control Hub Tab Switcher
-    function switchEspTab(tabName) {
-      document.getElementById('tab-content-sim').classList.add('hidden');
-      document.getElementById('tab-content-logs').classList.add('hidden');
-
-      document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
-      document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg hover:text-slate-900";
-
-      if (tabName === 'sim') {
-        document.getElementById('tab-content-sim').classList.remove('hidden');
-        document.getElementById('tab-btn-sim').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
-      } else if (tabName === 'logs') {
-        document.getElementById('tab-content-logs').classList.remove('hidden');
-        document.getElementById('tab-btn-logs').className = "px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs font-bold";
-      }
-    }
-
-    // Telemetry Event Log Helper
-    function addLogEntry(msg) {
-      const logContainer = document.getElementById('log-container');
-      const timeStr = new Date().toLocaleTimeString();
-      const div = document.createElement('div');
-      div.innerHTML = `<span class="text-slate-500">[${timeStr}]</span> <span class="text-sky-300">${msg}</span>`;
-      logContainer.appendChild(div);
-      logContainer.scrollTop = logContainer.scrollHeight;
-    }
-
-    function clearLogs() {
-      document.getElementById('log-container').innerHTML = '<div class="text-slate-500">[SYSTEM] Log cleared. Monitoring active.</div>';
-    }
-
-    // Scroll helper
-    function scrollToSection(id) {
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Export CSV Report Functionality
-    function exportDataCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,Time,Temperature_C,pH_Acidity,Quality_Status\n";
-      for (let i = 0; i < timeLabels.length; i++) {
-        const status = (phHistory[i] < 6.4 || tempHistory[i] > 7.8) ? "WARNING" : "SAFE";
-        csvContent += `${timeLabels[i]},${tempHistory[i]},${phHistory[i]},${status}\n`;
-      }
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `SmartMilk_Quality_Report_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
   </script>
 
